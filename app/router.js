@@ -5,7 +5,19 @@
  */
 module.exports = app => {
   const { router, controller } = app;
+  const auth = app.middleware.auth({});
+
   router.get('/', controller.home.index);
   router.get('/push', controller.home.entry);
-  router.post('/push', controller.home.entry);
+  router.post('/push', controller.home.entry); // 微信后台添加消息推送域名时做域名校验
+
+
+  router.post('/login', controller.login.loginWithUserinfo);
+  router.get('/test', auth, controller.home.test); // 需要校验token的请求，加入auth中间件
+
+
+
+  // admin
+  router.get('/admin/users', controller.user.list);
+  router.post('/admin/register', controller.admin.register);
 };

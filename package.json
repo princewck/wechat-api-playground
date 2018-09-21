@@ -4,7 +4,9 @@
   "description": "",
   "private": true,
   "dependencies": {
-    "egg": "^2.2.1"
+    "egg": "^2.2.1",
+    "egg-mysql": "^3.0.0",
+    "jsonwebtoken": "^8.3.0"
   },
   "devDependencies": {
     "autod": "^3.0.1",
@@ -15,6 +17,7 @@
     "egg-scripts": "^2.9.1",
     "eslint": "^4.11.0",
     "eslint-config-egg": "^6.0.0",
+    "nconf": "^0.10.0",
     "webstorm-disable-index": "^1.2.0"
   },
   "engines": {

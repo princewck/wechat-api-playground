@@ -31,3 +31,13 @@ $ npm stop
 
 
 [egg]: https://eggjs.org
+
+# 一些约定
+### 1. 配置文件
+配置文件路径 /usr/local/opt/wechat-api/config.json
+```
+{
+  'appid': '[微信appid]',
+  'appsecret': '[微信appsecret]]'
+}
+```

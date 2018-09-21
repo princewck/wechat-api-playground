@@ -1,5 +1,14 @@
 'use strict';
 
+const nconf = require('nconf');
+
+nconf
+  .argv()
+  .env()
+  .file({
+    file: '/usr/local/opt/push/config.json'
+  });
+
 module.exports = appInfo => {
   const config = exports = {};
 
@@ -14,6 +23,35 @@ module.exports = appInfo => {
 			enable: false,
 		}
 	};
+
+  config.wechat = {
+    appid: nconf.get('appid'),
+    appsecret: nconf.get('appsecret'),
+  };
+
+  config.mysql = {
+    // 单数据库信息配置
+    client: {
+      // host
+      host: nconf.get('mysql_host'),
+      // 端口号
+      port: nconf.get('mysql_port'),
+      // 用户名
+      user: nconf.get('mysql_user'),
+      // 密码
+      password: nconf.get('mysql_password'),
+      // 数据库名
+      database: nconf.get('mysql_database'),
+    },
+    // 是否加载到 app 上，默认开启
+    app: true,
+    // 是否加载到 agent 上，默认关闭
+    agent: false,
+  };
+
+  config.jwt = {
+    private_key: nconf.get('jwt_private_key'),
+  }
 
   return config;
 };
