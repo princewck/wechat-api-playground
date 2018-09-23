@@ -26,8 +26,8 @@ module.exports = class AdminController extends Controller {
   }
 
   async currentUserInfo() {
-    const cookie = this.ctx.request.cookie;
-    const user = await this.ctx.service.admin.getByToken(cookie['w-session']);
+    const token = this.ctx.cookies.get('w-session');
+    const user = await this.ctx.service.admin.getByToken(token);
     this.ctx.body = {
       ...user,
       // mock 数据
