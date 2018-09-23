@@ -57,6 +57,12 @@ module.exports = class AdminService extends Service {
     return await this.app.mysql.get('admin', {name});
   }
 
+  async getByToken(token) {
+    return await this.app.mysql.select('admin', {
+      columns: ['id', 'name'],
+    })
+  }
+
   async refreshToken(username, secret) {
     const token = _genToken(username, secret, this.config.jwt.private_key);
     await this.app.mysql.query('update `admin` set token = ? where name = ?', [token, username]);
