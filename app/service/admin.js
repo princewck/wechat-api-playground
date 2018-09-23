@@ -8,7 +8,7 @@ module.exports = class AdminService extends Service {
   async register( username, password) {
     const exist = await this.getByName(username);
     console.log('exist', exist);
-    if (exist && exist.username) {
+    if (exist && exist.name) {
       throw new Error('user exist');
     }
     const salt = this.ctx.helper.randomStr();
