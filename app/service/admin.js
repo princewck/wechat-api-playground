@@ -6,7 +6,7 @@ module.exports = class AdminService extends Service {
 
 
   async register( username, password) {
-    const exist = this.getByName(username);
+    const exist = await this.getByName(username);
     console.log('exist', exist);
     if (exist && exist.username) {
       throw new Error('user exist');
