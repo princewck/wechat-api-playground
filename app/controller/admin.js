@@ -14,6 +14,7 @@ module.exports = class AdminController extends Controller {
           id: info.id,
         }
       };
+      this.ctx.cookies.set('w-session', token);
     } catch (e) {
       console.error(e);
       this.ctx.status = 403;
