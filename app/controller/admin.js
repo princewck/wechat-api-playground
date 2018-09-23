@@ -26,7 +26,7 @@ module.exports = class AdminController extends Controller {
   }
 
   async currentUserInfo() {
-    const cookie = this.ctx.request.cookies;
+    const cookie = this.ctx.request.cookie;
     const user = await this.ctx.service.admin.getByToken(cookie['w-session']);
     this.ctx.body = {
       ...user,
