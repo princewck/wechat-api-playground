@@ -60,10 +60,11 @@ module.exports = class AdminService extends Service {
   }
 
   async getByToken(token) {
-    return await this.app.mysql.select('admin', {
+    const users =  await this.app.mysql.select('admin', {
       where: {token},
       columns: ['id', 'name'],
-    })
+    });
+    return users && users[0];
   }
 
   async refreshToken(username, secret) {
