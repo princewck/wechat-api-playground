@@ -61,6 +61,7 @@ module.exports = class AdminService extends Service {
 
   async getByToken(token) {
     return await this.app.mysql.select('admin', {
+      where: {token},
       columns: ['id', 'name'],
     })
   }
