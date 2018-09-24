@@ -8,6 +8,7 @@ module.exports = class AdminController extends Controller {
       const token = await this.ctx.service.admin.register(username, password);
       const info = await this.ctx.service.admin.getByName(username);
       this.ctx.body = {
+        success: true,
         token,
         info: {
           username: info.name,
