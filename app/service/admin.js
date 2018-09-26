@@ -36,7 +36,7 @@ module.exports = class AdminService extends Service {
   }
 
   async login(username, password) {
-    const exist = this.getByName(username);
+    const exist = await this.getByName(username);
     console.log(exist);
     if (!exist) {
       throw new Error('user not exist');
