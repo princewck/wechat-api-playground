@@ -15,7 +15,7 @@ module.exports = class AdminController extends Controller {
           id: info.id,
         }
       };
-      this.ctx.cookies.set('w-session', token);
+      // this.ctx.cookies.set('w-session', token);
     } catch (e) {
       console.error(e);
       this.ctx.body = {
@@ -30,6 +30,14 @@ module.exports = class AdminController extends Controller {
     try {
       const token = await this.ctx.service.admin.login(username, password);
       const info = await this.ctx.service.admin.getByName(username);      
+      this.ctx.body = {
+        success: true,
+        token,
+        info: {
+          username: info.name,
+          id: info.id,
+        }
+      };      
     } catch (e) {
       console.error(e);
       this.ctx.body = {
