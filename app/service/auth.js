@@ -1,5 +1,6 @@
 const { Service }  = require('egg');
 const crypto = require('crypto');
+// https://blog.csdn.net/u011652364/article/details/78669041
 const jwt = require('jsonwebtoken');
 
 module.exports = class AuthService extends Service {

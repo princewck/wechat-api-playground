@@ -35,8 +35,7 @@ module.exports = class AdminService extends Service {
     }
   }
 
-  async login() {
-    const { username, password } = this.ctx.request.body;
+  async login(username, password) {
     const exist = this.getByName(username);
     if (!exist) {
       throw new Error('user not exist');

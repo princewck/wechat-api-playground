@@ -25,6 +25,20 @@ module.exports = class AdminController extends Controller {
     }
   }
 
+  async login () {
+    const { username, password } = this.ctx.request.body;
+    try {
+      const token = await this.ctx.service.admin.login(username, password);
+      const info = await this.ctx.service.admin.getByName(username);      
+    } catch (e) {
+      console.error(e);
+      this.ctx.body = {
+        success: false,
+        message: e.message,
+      }      
+    }
+  }
+
   async currentUserInfo() {
     const token = this.ctx.cookies.get('w-session');
     const user = await this.ctx.service.admin.getByToken(token);

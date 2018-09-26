@@ -16,10 +16,10 @@ module.exports = app => {
   router.get('/test', auth, controller.home.test); // 需要校验token的请求，加入auth中间件
 
 
-
   // admin
   router.get('/admin/users', controller.user.list);
   router.post('/admin/register', controller.admin.register);
+  router.post('/admin/login', controller.admin.login);
 
   router.get('/admin/currentUser', controller.admin.currentUserInfo);
 };
