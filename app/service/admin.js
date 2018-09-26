@@ -37,6 +37,7 @@ module.exports = class AdminService extends Service {
 
   async login(username, password) {
     const exist = this.getByName(username);
+    console.log(exist);
     if (!exist) {
       throw new Error('user not exist');
     }
@@ -45,7 +46,7 @@ module.exports = class AdminService extends Service {
     if (encryptedPwd !== exist.password) {
       throw new Error('password is invalid');
     }
-    const secret = _getSecret(username, password);
+    const secret = _getSecret(username, encryptedPwd);
     const newToken = await this.refreshToken(username, secret);
     return newToken;
   }
