@@ -51,7 +51,7 @@ module.exports = class AdminService extends Service {
   }
 
   async logout(username) {
-    await this.app.mysql.delete('admin', {name: username});
+    await this.app.mysql.query('update admin set token = null where name = ?', [username]);
   }
 
   async getByName(name) {

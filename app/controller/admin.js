@@ -102,4 +102,17 @@ module.exports = class AdminController extends Controller {
     }
   }
 
+  async logout() {
+    try {
+      this.ctx.service.admin.logout();
+      this.ctx.body = {
+        success: true,
+      };
+    } catch (e) {
+      this.ctx.body = {
+        success: false,
+      }
+    }
+  }
+
 }
