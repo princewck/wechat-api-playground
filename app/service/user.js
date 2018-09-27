@@ -13,7 +13,7 @@ module.exports = class UserService extends Service {
 
   async list() {
     return await this.app.mysql.select('user', {
-      columns: ['id', 'avatar', 'gender', 'province', 'city'],
+      columns: ['id', 'avatar', 'gender', 'province', 'city', 'nick', 'open_id', 'last_login', 'first_login'],
     });
   }
 
