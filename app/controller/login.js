@@ -2,38 +2,10 @@ const { Controller } = require('egg');
 
 module.exports = class LoginService extends Controller {
 
-  async index() {
-    const {header, body} = this.ctx.request;
-    console.log(header, '\n' ,body);
-    const token = header['w-session'];
-    if (!token) {
-      this.ctx.body = {
-        success: false,
-        message: 'invalid token',
-      }
-      this.ctx.status = 401;
-    }
-    else {
-      try {
-        const newToken = await this.ctx.service.updateLogin(token);
-        this.ctx.body = {
-          success: true,
-          token: newToken,
-        };
-      } catch (e) {
-        this.ctx.code = 401;
-        if (e && e.message === 'jwt expires') {
-          this.ctx.body = {
-            success: false,
-            message: 'token expires',
-          };
-        } else {
-          this.ctx.body = {
-            success: false,
-            message: e && e.message || 'login error',
-          };
-        }
-      }
+  async authorize() {
+    this.ctx.body = {
+      success: true,
+      message: '已登陆'
     };
   }
 
