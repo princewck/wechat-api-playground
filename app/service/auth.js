@@ -102,7 +102,8 @@ function _genToken(openid, session_key, userInfo, salt, jwt_private_key, appName
     appName,
   };
   const token = jwt.sign(payload, jwt_private_key, {
-    expiresIn: 60 * 60 * 24 * 2 // 2天后过期
+    expiresIn: 5 // 2天后过期
+    // expiresIn: 60 * 60 * 24 * 2 // 2天后过期
   });
   return token;
 }
