@@ -10,7 +10,7 @@ module.exports = class AuthService extends Service {
     if (!appName) {
       throw new Error('appName is missing');
     }
-    const { appid, appsecret } = this.config.wechat;
+    const { appid, appsecret } = this.config.wechat[appName] || {};
     const res = await this.ctx.curl(`https://api.weixin.qq.com/sns/jscode2session?appid=${appid}&secret=${appsecret}&js_code=${code}&grant_type=authorization_code`, {
       dataType: 'json'
     });
