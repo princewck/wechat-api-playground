@@ -60,6 +60,7 @@ module.exports = class LoginService extends Controller {
         };
       }
     } catch (e) {
+      console.error(e);
       this.status = 500;
       this.ctx.body = {
         success: false,
