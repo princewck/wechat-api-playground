@@ -67,9 +67,9 @@ module.exports = class AuthService extends Service {
     } = userinfo;
     const sql = `
       insert into user (
-        open_id, session_key, nick, avatar, gender, province, city, token, token_salt, first_login, last_login
+        open_id, session_key, nick, avatar, gender, province, city, token, token_salt, first_login, last_login, app_name
       ) values (
-        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
       ) on duplicate key update 
       session_key=VALUES(session_key),
       nick=VALUES(nick), 
@@ -78,10 +78,11 @@ module.exports = class AuthService extends Service {
       city=VALUES(city),
       token=VALUES(token),
       token_salt=VALUES(token_salt),
-      last_login=VALUES(last_login)
+      last_login=VALUES(last_login),
+      app_name=VALUES(app_name)
       `;
     await this.app.mysql.query(sql, [
-      openid, session_key, nickName, avatarUrl, gender, province, city, token, salt, time, time
+      openid, session_key, nickName, avatarUrl, gender, province, city, token, salt, time, time, appName
     ]);
     return token;
   }
