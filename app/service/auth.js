@@ -6,7 +6,10 @@ const jwt = require('jsonwebtoken');
 module.exports = class AuthService extends Service {
 
   // get openid & session_key
-  async authorize(code) {
+  async authorize(code, appName) {
+    if (!appName) {
+      throw new Error('appName is missing');
+    }
     const { appid, appsecret } = this.config.wechat;
     const res = await this.ctx.curl(`https://api.weixin.qq.com/sns/jscode2session?appid=${appid}&secret=${appsecret}&js_code=${code}&grant_type=authorization_code`, {
       dataType: 'json'
@@ -28,13 +31,14 @@ module.exports = class AuthService extends Service {
     }
     // 可能会报错，在controller层拦截处理
     const payload = _verify(token, this.config.jwt.private_key);
-    const { secret, user: userinfo } = payload;
+    const { secret, user: userinfo, appName } = payload;
     const { open_id: openid, session_key, token_salt } = user;
     const time = +new Date();
     const sha1 = crypto.createHash('sha1');
     sha1.update(openid);
     sha1.update(token_salt);
     sha1.update(session_key);
+    sha1.update(appName);
     const tempStr = sha1.digest('hex');
     if (secret !== tempStr) {
       throw new Error('invalid token');
@@ -50,9 +54,9 @@ module.exports = class AuthService extends Service {
   }
 
   // 用openid 登录
-  async updateUserAndLogin({openid, session_key, userinfo = {}}) {
+  async updateUserAndLogin({openid, session_key, userinfo = {}, appName}) {
     const salt = this.ctx.helper.randomStr();
-    const token = _genToken(openid, session_key, userinfo, salt, this.config.jwt.private_key);
+    const token = _genToken(openid, session_key, userinfo, salt, this.config.jwt.private_key, appName);
     const time = +new Date();
     const { 
       nickName = '', 
@@ -84,15 +88,17 @@ module.exports = class AuthService extends Service {
 
 }
 
-function _genToken(openid, session_key, userInfo, salt, jwt_private_key) {
+function _genToken(openid, session_key, userInfo, salt, jwt_private_key, appName) {
   const sha1 = crypto.createHash('sha1');
   sha1.update(openid);
   sha1.update(salt);
   sha1.update(session_key);
+  sha1.update(appName);
   const tempStr = sha1.digest('hex');
   const payload = {
     user: userInfo,
     secret: tempStr,
+    appName,
   };
   const token = jwt.sign(payload, jwt_private_key, {
     expiresIn: 60 * 60 * 24 * 2 // 2天后过期

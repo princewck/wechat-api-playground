@@ -38,24 +38,34 @@ module.exports = class LoginService extends Controller {
   }
 
   async loginWithUserinfo() {
-    const { body } = this.ctx.request;
-    const { code, userInfo } = body;
-    const info = await this.ctx.service.auth.authorize(code);
-    console.log('info', info);
-    if (info) {
-      const token = await this.ctx.service.auth.updateUserAndLogin({...info, userinfo: userInfo});
-      this.ctx.body = {
-        success: true,
-        token: token,
+    try {
+      const { body } = this.ctx.request;
+      const { code, userInfo, appName } = body;
+      const info = await this.ctx.service.auth.authorize(code, appName);
+      if (info) {
+        const token = await this.ctx.service.auth.updateUserAndLogin({
+          ...info,
+          userinfo: userInfo,
+          appName
+        });
+        this.ctx.body = {
+          success: true,
+          token: token,
+        }
+      } else {
+        this.ctx.code = 400;
+        this.ctx.body = {
+          success: false,
+          message: '登录失败',
+        };
       }
-    } else {
-      this.ctx.code = 401;
+    } catch (e) {
+      this.status = 500;
       this.ctx.body = {
         success: false,
         message: '登录失败',
-      };
+      };      
     }
-
   }
 
 

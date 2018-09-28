@@ -24,10 +24,7 @@ module.exports = appInfo => {
 		}
 	};
 
-  config.wechat = {
-    appid: nconf.get('appid'),
-    appsecret: nconf.get('appsecret'),
-  };
+  config.wechat = nconf.get('wechat');
 
   config.mysql = {
     // 单数据库信息配置
