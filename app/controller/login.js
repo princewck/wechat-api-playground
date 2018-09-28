@@ -42,6 +42,7 @@ module.exports = class LoginService extends Controller {
       const { body } = this.ctx.request;
       const { code, userInfo, appName } = body;
       const info = await this.ctx.service.auth.authorize(code, appName);
+      console.log(info);
       if (info) {
         const token = await this.ctx.service.auth.updateUserAndLogin({
           ...info,
