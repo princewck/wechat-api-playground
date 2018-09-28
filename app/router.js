@@ -13,6 +13,7 @@ module.exports = app => {
 
 
   router.post('/login', controller.login.loginWithUserinfo);
+  router.post('/auth', controller.login.index);
   router.get('/test', auth, controller.home.test); // 需要校验token的请求，加入auth中间件
 
 
