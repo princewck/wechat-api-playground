@@ -7,4 +7,7 @@ nconf
     file: '/usr/local/opt/push_test/config.json'
   });
 
-  config.wechat = nconf.get('wechat');
+  module.exports = appInfo => {
+    const config = exports = {};
+    config.wechat = nconf.get('wechat');
+  }
