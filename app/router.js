@@ -23,5 +23,15 @@ module.exports = app => {
   router.post('/admin/login', controller.admin.login);
   router.post('/admin/logout', controller.admin.logout);
 
-  router.get('/admin/currentUser', controller.admin.currentUserInfo);
+  // wish
+  router.resources(
+    'wish_categories', 
+    '/admin/wish/categories', 
+    controller.wishCategories
+  );
+  router.resources(
+    'wish_thread', 
+    '/admin/wish/threads', 
+    controller.wishThreads
+  );
 };

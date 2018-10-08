@@ -2,14 +2,15 @@
 
 const nconf = require('nconf');
 
-nconf
+module.exports = appInfo => {
+
+  nconf
   .argv()
   .env()
   .file({
     file: '/usr/local/opt/push/config.json'
   });
 
-module.exports = appInfo => {
   const config = exports = {};
 
   // use for cookie sign key, should change to your own and keep security
