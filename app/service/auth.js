@@ -103,7 +103,7 @@ function _genToken(openid, session_key, userInfo, salt, jwt_private_key, appName
   };
   const token = jwt.sign(payload, jwt_private_key, {
     // expiresIn: 5 // 2天后过期
-    expiresIn: process.env.NODE_ENV === 'production' ? 60 * 60 * 24 : 30// 2天后过期
+    expiresIn: process.env.NODE_ENV === 'production' ? 60 * 60 * 12 : 30// 12小时后过期
   });
   return token;
 }
