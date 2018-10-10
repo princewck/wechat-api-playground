@@ -36,7 +36,7 @@ module.exports = app => {
   );
 
   // wish miniprogram
-  router.get('/wish/categories', auth, controller.wishCategories.list);
-  router.get('/wish/thread/:id', auth, controller.wishThreads.show);
+  router.get('/wish/categories', controller.wishCategories.list);
+  router.get('/wish/thread/:id', controller.wishThreads.show);
   
 };
