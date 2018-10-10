@@ -15,6 +15,18 @@ module.exports = class WishController extends Controller {
     }
   }
 
+  async list() {
+    try {
+      const categories = await this.ctx.service.wish.findAllCategoriesWithThreads();
+      this.ctx.body = categories;
+    } catch (e) {
+      this.ctx.status = 403;
+      this.ctx.body = {
+        message: 'error occured when getting categories'
+      };
+    }
+  }
+
   async create() {
     const { name, description, status } = this.ctx.request.body;
     if (!name) {

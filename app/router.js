@@ -23,7 +23,7 @@ module.exports = app => {
   router.post('/admin/login', controller.admin.login);
   router.post('/admin/logout', controller.admin.logout);
 
-  // wish
+  // wish admin
   router.resources(
     'wish_categories', 
     '/admin/wish/categories', 
@@ -34,4 +34,9 @@ module.exports = app => {
     '/admin/wish/threads', 
     controller.wishThreads
   );
+
+  // wish miniprogram
+  router.get('/wish/categories', auth, controller.wishCategories.list);
+  router.get('/wish/thread/:id', auth, controller.wishThreads.show);
+  
 };

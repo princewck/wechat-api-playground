@@ -49,6 +49,21 @@ module.exports = class WishService extends Service {
     return categories;
   }
 
+  async findAllCategoriesWithThreads() {
+    let categories = await this.app.mysql.select('wish_category', {
+      where: {status: 1}
+    });
+    categories = categories || [];
+    for (let i = 0; i < categories.length; i ++) {
+      const category = categories[i];
+      category.threads = await this.app.mysql.select('wish_thread', {
+        where: {cid: category.id},
+        columns: ['id', 'title']
+      });
+    }
+    return categories;
+  } 
+
   async createCategory({
     name = '',
     description = '',
