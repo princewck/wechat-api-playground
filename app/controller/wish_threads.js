@@ -22,11 +22,12 @@ module.exports = class WishThreadController extends Controller {
       cid, 
       status = 1, 
       description = '', 
-      auto_scroll = 0 
+      auto_scroll = 0,
+      cover = ''
     } = this.ctx.request.body;
     try {
       const res = await this.ctx.service.wish.create({
-        title, content, bgm, background, cid, status, description, auto_scroll
+        title, content, bgm, background, cid, status, description, auto_scroll, cover
       });
       this.ctx.body = {data: res};
     } catch (e) {
@@ -94,7 +95,8 @@ module.exports = class WishThreadController extends Controller {
       cid, 
       status = 1, 
       description = '', 
-      auto_scroll = 0 
+      auto_scroll = 0 ,
+      cover,
     } = this.ctx.request.body;
     try {
       await this.ctx.service.wish.update(id, { 
@@ -105,7 +107,8 @@ module.exports = class WishThreadController extends Controller {
         cid, 
         status, 
         description, 
-        auto_scroll 
+        auto_scroll,
+        cover
       });
       this.ctx.status = 204;
     } catch (e) {

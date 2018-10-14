@@ -4,11 +4,12 @@ const moment = require('moment');
 module.exports = class WishService extends Service {
 
   async create({
-    title, content, bgm, background, cid, status, description, auto_scroll
+    title, content, bgm, background, cid, status, description, auto_scroll, cover
   }) {
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
     const res = await this.app.mysql.insert('wish_thread', {
       title, content, bgm, background, cid, status, description, auto_scroll, created_at: now, updated_at: now,
+      cover
     });
     return res;
   }
@@ -18,13 +19,13 @@ module.exports = class WishService extends Service {
   }
 
   async update(id, {
-    title, content, bgm, background, cid, status, description, auto_scroll
+    title, content, bgm, background, cid, status, description, auto_scroll,cover
   }) {
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
     const row = {
       id,
       title, content, bgm, background, cid, status, description,auto_scroll,
-      updated_at: now,
+      updated_at: now, cover
     };
     await this.app.mysql.update('wish_thread', row);
   }
