@@ -35,6 +35,15 @@ module.exports = app => {
     controller.wishThreads
   );
 
+
+  router.resources(
+    'admin_assets',
+    '/admin/assets',
+    controller.assets,
+  )
+
+  router.get('/admin/sts', controller.utils.stsToken); // todo add auth
+
   // wish miniprogram
   router.get('/wish/categories', controller.wishCategories.list);
   router.get('/wish/thread/:id', controller.wishThreads.show);

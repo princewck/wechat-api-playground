@@ -29,6 +29,8 @@ module.exports = appInfo => {
 
   config.wechat = nconf.get('wechat');
 
+  config.oss = nconf.get('oss');
+
   config.mysql = {
     // 单数据库信息配置
     client: {
