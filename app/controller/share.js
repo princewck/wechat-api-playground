@@ -8,6 +8,7 @@ module.exports = class UserController extends Controller {
       await this.ctx.service.share.create(thread_id);
       this.ctx.status = 201;
     } catch (e) {
+      console.error(e);
       this.ctx.status = 403;
       this.ctx.body = {
         message: '创建失败',
