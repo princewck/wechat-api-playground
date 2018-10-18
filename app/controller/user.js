@@ -20,8 +20,8 @@ module.exports = class UserController extends Controller {
   // 获取当前用户
   async find() {
     try {
-      const header = ctx.header;
-      const token = await ctx.service.auth.verify(header['w-session']);    
+      const header = this.ctx.header;
+      const token = await this.ctx.service.auth.verify(header['w-session']);    
       const user = await this.ctx.service.user.getByToken(token);
       this.ctx.body = user;
     } catch (e) {
