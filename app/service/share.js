@@ -1,4 +1,5 @@
 const { Service } = require('egg');
+const moment = require('moment');
 
 module.exports = class ShareService extends Service {
 
@@ -10,6 +11,7 @@ module.exports = class ShareService extends Service {
     return await this.app.mysql.insert('share_info', {
       open_id: user.open_id,
       thread_id: threadId,
+      created_at: moment().format('YYYY-MM-DD HH:mm:ss')
     });
   }
 
