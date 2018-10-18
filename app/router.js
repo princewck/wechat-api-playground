@@ -42,10 +42,16 @@ module.exports = app => {
     controller.assets,
   )
 
+  router.resources(
+    'admin_share',
+    '/admin/share',
+    controller.share,
+  )
+
   router.get('/admin/sts', controller.utils.stsToken); // todo add auth
 
   // wish miniprogram
   router.get('/wish/categories', controller.wishCategories.list);
   router.get('/wish/thread/:id', controller.wishThreads.show);
-  
+  router.post('/wish/share', auth, controller.share.create);
 };
