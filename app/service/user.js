@@ -11,6 +11,10 @@ module.exports = class UserService extends Service {
     return await this.app.mysql.get('user', {token});
   }
 
+  async getById(id) {
+    return await this.app.mysql.get('user', {id});
+  }
+
   async list() {
     return await this.app.mysql.select('user', {
       columns: ['id', 'avatar', 'gender', 'province', 'city', 'nick', 'open_id', 'last_login', 'first_login'],

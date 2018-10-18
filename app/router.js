@@ -16,6 +16,8 @@ module.exports = app => {
   router.post('/auth', auth, controller.login.authorize);
   router.get('/test', auth, controller.home.test); // 需要校验token的请求，加入auth中间件
 
+  router.get('/user', controller.user.find);
+  router.get('/user/:id', controller.user.findById);
 
   // admin
   router.get('/admin/users', controller.user.list);
