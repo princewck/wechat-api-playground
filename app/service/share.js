@@ -4,7 +4,7 @@ module.exports = class ShareService extends Service {
 
 
   async create(threadId) {
-    const header = ctx.header;
+    const header = this.ctx.header;
     const token = await this.ctx.service.auth.verify(header['w-session']);    
     const user = await this.ctx.service.user.getByToken(token);
     return await this.app.mysql.insert('share_info', {
