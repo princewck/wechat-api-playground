@@ -59,7 +59,7 @@ module.exports = class WishService extends Service {
       const category = categories[i];
       category.threads = await this.app.mysql.select('wish_thread', {
         where: {cid: category.id},
-        columns: ['id', 'title']
+        columns: ['id', 'title', 'cover']
       });
     }
     return categories;
