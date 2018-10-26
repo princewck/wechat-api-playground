@@ -66,7 +66,7 @@ module.exports = class WechatService extends Service {
 
   async recordFormId(openId, formId) {
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
-    const expires = now.add(7, 'days').subtract(1, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+    const expires = moment().add(7, 'days').subtract(1, 'minutes').format('YYYY-MM-DD HH:mm:ss');
     await this.app.mysql.insert('form_ids', {
       open_id: openId,
       form_id: formId,
