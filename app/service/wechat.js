@@ -1,23 +1,20 @@
 const { Service } = require('egg');
 const moment = require('moment');
 
+const cache = {
+
+}; //
+
 module.exports = class WechatService extends Service {
 
-  constructor() {
-    super();
-    this.cache = {
-
-    }; // 同一个worker中缓存数据
-  }
-
   async getAccessToken(appid, appsecret) {
-    const cache = this.cache[appid];
+    const _cache = cache[appid];
     const now = +new Date();
-    if (cache && now < cache.expires_at) {
-      return cache.access_token;
+    if (_cache && now < cache.expires_at) {
+      return _cache.access_token;
     }
     const res = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${appid}&secret=${appsecret}`);
-    this.cache[appid] = {
+    cache[appid] = {
       ...res.data,
       expires_at: res.data.expires_in * 1000 + new Date(),
     };
