@@ -4,6 +4,7 @@ const moment = require('moment');
 module.exports = class WechatService extends Service {
 
   constructor() {
+    super();
     this.cache = {
 
     }; // 同一个worker中缓存数据
