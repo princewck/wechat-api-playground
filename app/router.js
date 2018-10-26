@@ -56,4 +56,7 @@ module.exports = app => {
   router.get('/wish/categories', controller.wishCategories.list);
   router.get('/wish/thread/:id', controller.wishThreads.show);
   router.post('/wish/share', auth, controller.share.create);
+
+
+  router.post('/form_id/:form_id', auth, controller.wechat.recordForm);
 };
