@@ -13,11 +13,12 @@ module.exports = class WechatService extends Service {
     if (_cache && now < cache.expires_at) {
       return _cache.access_token;
     }
-    const res = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${appid}&secret=${appsecret}`);
+    const res = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${appid}&secret=${appsecret}`, {dataType: 'json'});
     cache[appid] = {
       ...res.data,
       expires_at: res.data.expires_in * 1000 + new Date(),
     };
+    console.log(res);
     return res.data.access_token;
   }
 
@@ -32,13 +33,24 @@ module.exports = class WechatService extends Service {
    * @param {*} emphasisKeyword 
    * @param {*} appName 区分小程序 e.g  wish | workshop
    */
-  async senTemplateMessage(accessToken, toUser, templateId, page, form_id, data, emphasisKeyword, appName) {
+  async sendTemplateMessage(accessToken, toUser, templateId, page, form_id, data, emphasisKeyword, appName) {
     const res = await this.ctx.curl(`https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token=${accessToken}`, {
       dataType: 'json',
+      headers: {
+        'content-type': 'application/json'        
+      },
       method: 'post',
+      data: {
+        touser: toUser,
+        template_id: templateId,
+        page,
+        form_id,
+        data,
+        emphasis_keyword: emphasisKeyword,
+      },
     });
     console.log(res);
-    const { errcode: errorcode } = res.data;
+    const { errcode: errorcode, errmsg } = res.data;
     if (errorcode == 0) {
       await this.app.mysql.insert('message_history', {
         to_user: toUser,
@@ -60,7 +72,7 @@ module.exports = class WechatService extends Service {
     } else if (errorcode == 45009) {
       throw new Error('超过今日调用限额');
     } else {
-      throw new Error(`发送模板消息失败，未知错误！[${errorcode}]`);
+      throw new Error(`发送模板消息失败，未知错误！[${errorcode}: ${errmsg}]`);
     }
   }
 
@@ -78,6 +90,11 @@ module.exports = class WechatService extends Service {
 
   async useForm(id) {
     await this.app.mysql.query('update form_ids set used = 1 where id = ?', [id]);
+  }
+
+  async getAvailableFormId(open_id) {
+    const data = await this.app.mysql.query('select * from form_ids where used = 0 and open_id = ? and expires_at > NOW() limit 0, 1', [open_id]);
+    return data[0] && data[0].form_id;
   }
 
 

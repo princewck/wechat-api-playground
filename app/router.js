@@ -59,4 +59,5 @@ module.exports = app => {
 
 
   router.post('/form_id/:form_id', auth, controller.wechat.recordForm);
+  router.post('/admin/send_msg', controller.wechat.sendMessage)
 };
