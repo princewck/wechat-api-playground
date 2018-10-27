@@ -45,6 +45,16 @@ module.exports = class WechatController extends Controller {
     }
   }
 
+  // 打卡提醒 kZE1seYo0SlPMOcsGhepsGbvlsKpn4bi-7NxTQQuuQ0
+  async dailyRemind() {
+    try {
+      await this.ctx.service.wechat.dailyRemind();
+      this.ctx.status = 204;
+    } catch (e) {
+      console.log(e); 
+    }
+  }
+
 
 
 

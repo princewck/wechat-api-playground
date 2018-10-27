@@ -61,6 +61,7 @@ module.exports = class WechatService extends Service {
         emphasis: emphasisKeyword,
         app: appName,
       });
+      await this.app.mysql.query('update form_ids set used = 1 where form_id = ?', [form_id]);
     } else if (errorcode == 40037) {
       throw new Error('template_id不正确！');
     } else if (errorcode == 41028) {
@@ -93,7 +94,7 @@ module.exports = class WechatService extends Service {
   }
 
   async getAvailableFormId(open_id) {
-    const data = await this.app.mysql.query('select * from form_ids where used = 0 and open_id = ? and expires_at > NOW() limit 0, 1', [open_id]);
+    const data = await this.app.mysql.query('select * from form_ids where used = 0 and open_id = ? and expires_at > NOW() order by expires_at asc limit 0, 1', [open_id]);
     return data[0] && data[0].form_id;
   }
 
