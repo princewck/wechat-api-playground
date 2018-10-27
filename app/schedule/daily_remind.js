@@ -11,9 +11,9 @@ class DailyRemind extends Subscription {
     };
   }
 
-  async task (ctx) {
+  async subscribe () {
     try {
-      await ctx.service.workshopMessage.dailyRemind();
+      await this.ctx.service.workshopMessage.dailyRemind();
     } catch (e) {
       console.error(e);
     }
