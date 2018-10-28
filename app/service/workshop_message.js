@@ -7,7 +7,7 @@ const templateId = 'kZE1seYo0SlPMOcsGhepsGbvlsKpn4bi-7NxTQQuuQ0';
 module.exports = class WorkshopMessageService extends Service {
 
   async dailyRemind() {
-    console.log('-----每日登录提醒:开始发送-----');
+    this.ctx.logger.info('-----每日登录提醒:开始发送-----');
     const users = await this.app.mysql.select('daily_remind_list', {
       limit: 10, 
       offset: 0,
@@ -23,9 +23,9 @@ module.exports = class WorkshopMessageService extends Service {
         keyword3: {value: '您已经离开24小时啦，是时候记录一下工时和加班信息啦！'},
         keyword4: {value: '上班辛苦啦！'}
       };   
-      console.log(`-----每日登录提醒:第${i + 1}条`);
+      this.ctx.logger.info(`-----每日登录提醒:第${i + 1}条`);
       const formId = await this.ctx.service.wechat.getAvailableFormId(user.open_id);
-      console.log(`-----每日登录提醒:formId: ${formId}`);
+      this.ctx.logger.info(`-----每日登录提醒:formId: ${formId}`);
       await this.ctx.service.wechat.sendTemplateMessage(
         accessToken, user.open_id, templateId, '/pages/home', 
         formId, 
@@ -33,9 +33,9 @@ module.exports = class WorkshopMessageService extends Service {
         'keyword4.DATA', 
         'workshop',
       );
-      console.log(`-----每日登录提醒:${formId}发送成功！`);
+      this.ctx.logger.info(`-----每日登录提醒:${formId}发送成功！`);
     }
-    console.log(`-----每日登录提醒:本次任务结束！`);
+    this.ctx.logger.info(`-----每日登录提醒:本次任务结束！`);
   }
 
 
