@@ -9,7 +9,7 @@ module.exports = class WorkshopMessageService extends Service {
   async dailyRemind() {
     this.ctx.logger.info('-----每日登录提醒:开始发送-----');
     const users = await this.app.mysql.select('daily_remind_list', {
-      limit: 10, 
+      limit: 20, 
       offset: 0,
       orders: [['last_login', 'asc']],
     });

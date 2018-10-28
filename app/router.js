@@ -25,8 +25,6 @@ module.exports = app => {
   router.post('/admin/login', controller.admin.login);
   router.post('/admin/logout', controller.admin.logout);
 
-  router.get('/admin/remind/users', controller.workshopMessage.dailyRemindUsers);
-
   // wish admin
   router.resources(
     'wish_categories', 
