@@ -15,7 +15,7 @@ class DailyRemind extends Subscription {
     try {
       await this.ctx.service.workshopMessage.dailyRemind();
     } catch (e) {
-      console.error(e);
+      this.ctx.logger.error(e);
     }
   }  
 }
