@@ -60,6 +60,7 @@ module.exports = class WechatService extends Service {
         data,
         emphasis: emphasisKeyword,
         app: appName,
+        created_at: moment().format('YYYY-MM-DD HH:mm:ss'),
       });
       await this.app.mysql.query('update form_ids set used = 1 where form_id = ?', [form_id]);
     } else if (errorcode == 40037) {
