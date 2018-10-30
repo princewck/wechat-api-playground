@@ -1,4 +1,4 @@
-create view  oneday_message_history as select to_user, count(id) as sent_count from message_history where created_at > DATE_SUB(NOW(),INTERVAL 1 DAY);
+create view  oneday_message_history as select to_user, count(id) as sent_count from message_history where created_at > DATE_SUB(NOW(),INTERVAL 1 DAY) group by to_user;
 
 create view unused_forms as select count(id) as form_id_count, open_id as openid  from form_ids where expires_at > NOW() and used = 0 GROUP BY open_id;
 
