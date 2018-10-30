@@ -27,13 +27,17 @@ module.exports = class WorkshopMessageService extends Service {
       this.ctx.logger.info(`-----每日登录提醒:第${i + 1}条`);
       const formId = await this.ctx.service.wechat.getAvailableFormId(user.open_id);
       this.ctx.logger.info(`-----每日登录提醒:formId: ${formId}`);
-      await this.ctx.service.wechat.sendTemplateMessage(
-        accessToken, user.open_id, templateId, '/pages/home', 
-        formId, 
-        templateData, 
-        'keyword4.DATA', 
-        'workshop',
-      );
+      try {
+        await this.ctx.service.wechat.sendTemplateMessage(
+          accessToken, user.open_id, templateId, 'pages/home', 
+          formId, 
+          templateData, 
+          'keyword4.DATA', 
+          'workshop',
+        );
+      } catch (e) {
+        this.ctx.logger.error(e);
+      }
       this.ctx.logger.info(`-----每日登录提醒:${formId}发送成功！`);
     }
     this.ctx.logger.info(`-----每日登录提醒:本次任务结束！`);
