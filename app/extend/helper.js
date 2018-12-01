@@ -16,4 +16,7 @@ module.exports = {
       .slice(0, length)
       .join('');
   },
+  safeDigit(num) {
+    return isNaN(num) ? 0 : +num;
+  }
 };
