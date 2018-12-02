@@ -16,20 +16,23 @@ module.exports = class WorshopManageService extends Service {
     console.log(userId, data);
     let countSetting = null;
     for (let key in data) {
+      const row = data[key];
       const d = moment(key);
       const valid = d.isValid();
       const date = d.format('YYYY-MM-DD');
       const old = await this.app.mysql.get('work_data', { date });
-      if (old) continue;
-      console.log('data in ', date, ' already exist, skipping...');
+      if (old) {
+        console.log('data in ', date, ' already exist, skipping...');
+        continue;
+      }
       // 同步基本信息
       if (valid) {
         const primaryPayload = {
           date,
-          primary_hours: safeDigit(data.primary),
-          primary_price: safeDigit(data.primaryPrice),
+          primary_hours: safeDigit(row.primary),
+          primary_price: safeDigit(row.primaryPrice),
           absent: 0,
-          duty_type: data.night ? 'night' : null,
+          duty_type: row.night ? 'night' : null,
           comment: '',
           user_id: userId,
         };
@@ -40,6 +43,7 @@ module.exports = class WorshopManageService extends Service {
         }
 
         const record = await this.app.mysql.get('work_data', { date });
+        console.log('record inserted', record);
         // 获取刚才插入的id
         const workDataId = record.id;
 
@@ -73,7 +77,7 @@ module.exports = class WorshopManageService extends Service {
             count: data.count,
             price: safeDigit(data.piecePrice),
           };
-          this.app.mysql.insert('work_setting_piece', piecePayload);
+          await this.app.mysql.insert('work_setting_piece', piecePayload);
         }
       }
     }
