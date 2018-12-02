@@ -318,7 +318,7 @@ module.exports = class WorshopManageService extends Service {
     select * from work_data where user_id = ? and \`date\` between ? and ?
     `, [userId, start, end]);
     const result = workDataList.reduce((map, item) => {
-      map[item.date] = item;
+      map[moment(item.date).format('YYYY-MM-DD')] = item;
       return map;
     }, {});
     return result;
@@ -370,12 +370,7 @@ module.exports = class WorshopManageService extends Service {
     data.start = moment(start).clone().format('YYYY-MM-DD');
     data.end = moment(end).clone().format('YYYY-MM-DD');
     const _end = moment(data.end).clone().add(1, 'seconds');
-    const workDataList = await this.getWorkData(userId, data.start, _end.format('YYYY-MM-DD'));    
-    // const workData = workDataList.reduce((map, item) => {
-    //   m[moment(item.date).format('YYYY-MM-DD')] = item;
-    //   return m;
-    // }, {});
-    const workData = workDataList;
+    const workData = await this.getWorkData(userId, data.start, _end.format('YYYY-MM-DD'));    
     console.log('workData', workDataList);
     for (
       let i = start;
