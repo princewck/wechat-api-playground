@@ -371,6 +371,7 @@ module.exports = class WorshopManageService extends Service {
     data.end = moment(end).clone().format('YYYY-MM-DD');
     const _end = moment(data.end).clone().add(1, 'seconds');
     const workData = await this.getWorkData(userId, data.start, _end.format('YYYY-MM-DD'));    
+    console.log('workData', workData);
 
     for (
       let i = start;
