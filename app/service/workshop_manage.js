@@ -81,7 +81,7 @@ module.exports = class WorshopManageService extends Service {
   // 向前兼容旧版设置
   async syncStorageSetting(userId, data) {
     const extra = data.extraCategories || {};
-    const exist = this.ctx.mysql.get('work_setting', {user_id: userId});
+    const exist = this.app.mysql.get('work_setting', {user_id: userId});
     if (exist) {
       this.ctx.logger.warn('配置已存在，同步取消');
       console.info('配置已存在，同步取消');
