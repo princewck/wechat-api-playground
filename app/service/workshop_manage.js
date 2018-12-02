@@ -221,7 +221,7 @@ module.exports = class WorshopManageService extends Service {
     await this.app.mysql.insert('work_setting_piece', pieceSetting);
   }
 
-  // 获取一段时间的数据
+  // 获取一段时间的数据 ????
   async getData(userId, start, end) {
     const settings = await this.app.mysql.select('work_data', {
       where: {
@@ -314,15 +314,9 @@ module.exports = class WorshopManageService extends Service {
   }
 
   async getWorkData(userId, start, end) {
-    const workDataList = await this.app.mysql.select('work_data', {where: {
-      user_id: userId,
-      date: {
-        $between: [
-          moment(start).clone().format('YYYY-MM-DD'), 
-          moment(end).clone().format('YYYY-MM-DD')
-        ],
-      }
-    }});
+    const workDataList = await this.app.mysql.query(`
+    select * from work_data where user_id = ? and \`date\` between ? and ?
+    `, [userId, start, end]);
     const result = workDataList.reduce((map, item) => {
       map[item.date] = item;
       return map;
