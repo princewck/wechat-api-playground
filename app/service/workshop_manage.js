@@ -34,11 +34,7 @@ module.exports = class WorshopManageService extends Service {
           user_id: userId,
         };
 
-        const result = await this.app.mysql.insert('work_data', primaryPayload);
-        if (result.affectedRows === 1) {
-          throw new Error(date, ':同步work_data失败');
-        }
-
+        await this.app.mysql.insert('work_data', primaryPayload);
         const record = await this.app.mysql.get('work_data', { date });
         // 获取刚才插入的id
         const workDataId = record.id;
