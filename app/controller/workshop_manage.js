@@ -160,6 +160,24 @@ module.exports = class WorkshopManageController extends Controller {
     }
   }
 
+  async getCalcInfo() {
+    try {
+      const header = this.ctx.header;
+      const token = await this.ctx.service.auth.verify(header['w-session']);    
+      const user = await this.ctx.service.user.getByToken(token);   
+      const { start, end } = this.ctx.request.body;
+      const result = await this.ctx.service.workshopManage.getCalcInfo(user.id, start, end);
+      this.ctx.body = result;
+    } catch (e) {
+      console.error(e);
+      this.ctx.logger.error(e);
+      this.ctx.status = 403;
+      this.ctx.body = {
+        message: '获取工时统计信息失败！'
+      };
+    }
+  }
+
 
 
 }

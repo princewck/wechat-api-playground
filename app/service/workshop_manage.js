@@ -305,6 +305,195 @@ module.exports = class WorshopManageService extends Service {
 
   }
 
+  async getHomeInfo(userId, date) {
+    const setting = await this.app.mysql.get({date});
+    const method = setting.calcMethod;
+
+
+
+  }
+
+  async getWorkData(userId, start, end) {
+    const workDataList = await this.app.mysql.select('work_data', {where: {
+      user_id: userId,
+      date: {
+        $between: [
+          moment(start).clone().format('YYYY-MM-DD'), 
+          moment(_end).clone().format('YYYY-MM-DD')
+        ],
+      }
+    }});
+    const result = workDataList.reduce((map, item) => {
+      map[item.date] = item;
+      return map;
+    }, {});
+    return result;
+  }
+
+  // 获取一段时间内的工资计算结果
+  async getCalcInfo(userId, start, end) {
+    const data = {
+      primaryDays: 0,
+      primaryHours: 0,
+      extraDays: 0,
+      nightDays: 0,
+      weekdayExtraHours: 0,
+      weekendExtraHours: 0,
+      holidayExtraHours: 0,
+      extraHours: 0,
+      totalHours: 0,
+      totalSallary: 0,
+      primarySallary: 0,
+      extraSallary: 0,
+      totalPieces: 0,
+      pieceInfo: [],
+      pieceSallary: 0,
+    };
+    let config = await this.app.mysql.get('work_setting', {user_id: userId});
+    const pieceConfig = await this.app.mysql.select('work_setting_piece', {where: {user_id: userId}});
+    const { 
+      per_hour_sallary = 0, 
+      calc_method ,
+      base_month_sallary = 0,
+      month_start = 1,
+      piece_price = 0,
+      per_night_extra = 0,
+    } = config || {};    
+    const _end = moment(end).add(1, 'seconds');
+    const days = (moment(end) - moment(start))/(1000 * 3600 * 24);
+    let durationMonths = Math.floor(days/30) + Math.floor((days%30+7)/30);
+    durationMonths = durationMonths < 0 ? 0 : durationMonths;
+    const workData = await this.getWorkData(userId, start, end);
+
+    let pieceSettings;
+
+    if (!start && !end) {
+      // 如果不指定，返回当前结算周期计算结果
+      start = moment().date(month_start);
+      if (start.isAfter(moment())) {
+        start.subtract(1, 'months');
+      }
+      end = start.clone().add(1, 'months').subtract(1, 'days');
+    }
+    data.start = moment(start).clone().format('YYYY-MM-DD');
+    data.end = moment(end).clone().format('YYYY-MM-DD');
+
+    for (
+      let i = start;
+      moment(i).isBefore(_end);
+      i = moment(i).clone()
+        .add(1, 'days')
+        .format('YYYY-MM-DD')
+    ) {
+      if (!workData[i]) {
+        continue;
+      }
+
+      const dayInfo = workData[i];
+      const night = dayInfo.duty_type === 'night';
+      if (night) {
+        data.nightDays += 1;
+      }
+      const { primary_hours, primary_price, id } = dayInfo;
+      if (primary_hours) {
+        data.primaryDays += 1;
+        data.primaryHours += safeDigit(primary_hours);
+        if (isNaN(primary_price) || primary_price == null) {
+          // 如果没有数据则给他设置一下
+          // 此策略以后可能会废弃
+          await this.app.mysql.update('work_data', {id, primary_price: per_hour_sallary });
+          data.primaryPrice = per_hour_sallary;
+        } else {
+          data.primaryPrice = primary_price;
+        }
+      }
+
+      // 计算加班信息
+      const extra = await this.app.mysql.get('work_data_extra', { work_data_id: id });
+      if (extra) {
+        const { id: extraId, price: extraPrice, type: extraType } = extra;
+        const _hours = safeDigit(extra.hours);
+        data.extraDays += 1;
+        data.extraHours += hours;
+        let _extraPrice;
+        if (isNaN(extraPrice) || extraPrice === null) {
+          const _price = config[`${extraType}_extra_price`];
+          await this.app.mysql.update('work_data_extra', {id: extraId, price: safeDigit(_price)});
+          _extraPrice = _price;
+        } else {
+          _extraPrice = extraPrice;
+        }
+        data.extraSallary += safeDigit(_extraPrice) * _hours;
+
+        switch (extraType) {
+          case 'weekday':
+            data.weekdayExtraHours += _hours;
+            break;
+          case 'weekend':
+            data.weekendExtraHours += _hours;
+            break;
+          case 'holiday':
+            data.holidayExtraHours += _hours;
+            break;
+          default:
+            break;
+        }
+      }
+
+      // 计算计件信息
+      if (!pieceSettings) {
+        pieceSettings = await this.app.mysql.select('work_setting_piece', {where: {user_id: userId}});
+      }
+      const pieceData = await this.app.mysql.select('work_data_piece', {where: {work_data_id: id}})
+      const pieceDataMap = pieceData.reduce((m, item) => {
+        m[item.count_setting_id] = item;
+        return m;
+      }, {});
+      for (let i = 0; i < pieceSettings.length; i++) {
+        const d = {...pieceSettings[i]};
+        d.total = d.total || 0;
+        if (pieceDataMap[d.id]) {
+          const _dayPieceInfo = pieceDataMap[d.id];
+          const _count  = safeDigit(_dayPieceInfo.count);
+          const _sallary = safeDigit(_dayPieceInfo.price) * safeDigit(_dayPieceInfo.count);
+          d.totalCount += _count
+          data.totalPieces += _count;
+          d.totalPiece += _sallary;
+          data.pieceSallary += _sallary;
+        }
+      }
+
+
+      // 汇总
+      switch (calc_method) {
+        case 'primary_with_extra':
+          data.primarySallary = safeDigit(base_month_sallary) * durationMonths;
+          data.primaryAccurate = false;
+          break;
+        case 'hour_with_extra':
+          data.primaryAccurate = true;
+      }
+
+      data.totalHours = data.primaryHours + data.extraHours;
+      data.nightSallary = Number(safeDigit(per_night_extra) * data.nightDays).toFixed(2);
+
+      let totalSallary = safeDigit(data.nightSallary) + safeDigit(data.primarySallary);
+
+      if (calc_method && calc_method.includes('with_extra')) {
+        totalSallary += safeDigit(data.extraSallary);
+      }
+
+      // 计件
+      if (calc_method === 'by_count') {
+        totalSallary += safeDigit(data.pieceSallary);
+      }
+      data.pieceSallary = Number(data.pieceSallary).toFixed(2);
+      data.totalSallary = Number(totalSallary).toFixed(2);
+      return data;
+    }
+  }
+
+
 }
 
 function safeDigit(num) {
