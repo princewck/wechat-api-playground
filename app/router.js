@@ -77,4 +77,6 @@ module.exports = app => {
   router.get('/work/data', controller.workshopManage.getData);
   router.post('/work/data', controller.workshopManage.update);
 
+  router.get('/work/statistics', controller.workshopManage.getCalcInfo);
+
 };
