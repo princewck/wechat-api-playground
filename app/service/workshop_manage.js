@@ -13,6 +13,7 @@ module.exports = class WorshopManageService extends Service {
 
   // 向前兼容数据
   async syncStorageData(userId, data) {
+    console.log(userId, data);
     let countSetting = null;
     for (key in data) {
       const d = moment(key);
