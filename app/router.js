@@ -60,4 +60,21 @@ module.exports = app => {
 
   router.post('/form_id/:form_id', auth, controller.wechat.recordForm);
   router.post('/admin/send_msg', controller.wechat.sendMessage)
+
+
+  // 同步并兼容旧版数据
+  router.post('/sync_stat', controller.workshopManage.setSynced);
+  router.get('/sync_stat', controller.workshopManage.getSyncStat);
+  router.post('/sync_data', controller.workshopManage.syncStorageData);
+  router.post('/sync_setting', controller.workshopManage.syncStorageSetting);
+
+
+  // 工时设置相关
+  router.get('/work/setting', controller.workshopManage.getSetting);
+  router.post('/work/setting', controller.workshopManage.createDefaultSetting);
+  router.put('/work/setting', controller.workshopManage.updateSetting);
+
+  router.get('/work/data', controller.workshopManage.getData);
+  router.post('/work/data', controller.workshopManage.update);
+
 };
