@@ -353,10 +353,6 @@ module.exports = class WorshopManageService extends Service {
       piece_price = 0,
       per_night_extra = 0,
     } = config || {};  
-    const days = (moment(end) - moment(start))/(1000 * 3600 * 24);
-    let durationMonths = Math.floor(days/30) + Math.floor((days%30+7)/30);
-    durationMonths = durationMonths < 0 ? 0 : durationMonths;
-    console.log('durationMonths', durationMonths);
 
     let pieceSettings;
 
@@ -368,6 +364,10 @@ module.exports = class WorshopManageService extends Service {
       }
       end = start.clone().add(1, 'months').subtract(1, 'days');
     }
+    const days = (moment(end) - moment(start))/(1000 * 3600 * 24);
+    let durationMonths = Math.floor(days/30) + Math.floor((days%30+7)/30);
+    durationMonths = durationMonths < 0 ? 0 : durationMonths;
+    console.log('durationMonths', durationMonths);
     data.start = moment(start).clone().format('YYYY-MM-DD');
     data.end = moment(end).clone().format('YYYY-MM-DD');
     const _end = moment(data.end).clone().add(1, 'seconds');
