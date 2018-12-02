@@ -34,7 +34,11 @@ module.exports = class WorshopManageService extends Service {
           user_id: userId,
         };
 
-        await this.app.mysql.insert('work_data', primaryPayload);
+        const result = await this.app.mysql.insert('work_data', primaryPayload);
+        if (result.affectedRows !== 1) {
+          this.logger.error('work_data insert error');
+        }
+
         const record = await this.app.mysql.get('work_data', { date });
         // 获取刚才插入的id
         const workDataId = record.id;
