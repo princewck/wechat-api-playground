@@ -404,6 +404,7 @@ module.exports = class WorshopManageService extends Service {
 
       // 计算加班信息
       const extra = await this.app.mysql.get('work_data_extra', { work_data_id: id });
+      console.log(id, extra);
       if (extra) {
         const { id: extraId, price: extraPrice, type: extraType } = extra;
         const _hours = safeDigit(extra.hours);
