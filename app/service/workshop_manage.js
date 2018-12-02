@@ -408,7 +408,7 @@ module.exports = class WorshopManageService extends Service {
         const { id: extraId, price: extraPrice, type: extraType } = extra;
         const _hours = safeDigit(extra.hours);
         data.extraDays += 1;
-        data.extraHours += hours;
+        data.extraHours += _hours;
         let _extraPrice;
         if (isNaN(extraPrice) || extraPrice === null) {
           const _price = config[`${extraType}_extra_price`];
