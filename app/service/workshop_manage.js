@@ -356,6 +356,7 @@ module.exports = class WorshopManageService extends Service {
     const days = (moment(end) - moment(start))/(1000 * 3600 * 24);
     let durationMonths = Math.floor(days/30) + Math.floor((days%30+7)/30);
     durationMonths = durationMonths < 0 ? 0 : durationMonths;
+    console.log('durationMonths', durationMonths);
 
     let pieceSettings;
 
@@ -371,7 +372,6 @@ module.exports = class WorshopManageService extends Service {
     data.end = moment(end).clone().format('YYYY-MM-DD');
     const _end = moment(data.end).clone().add(1, 'seconds');
     const workData = await this.getWorkData(userId, data.start, _end.format('YYYY-MM-DD'));    
-    console.log('workData', workData);
     for (
       let i = moment(start).format('YYYY-MM-DD');
       moment(i).isBefore(_end);
@@ -404,7 +404,6 @@ module.exports = class WorshopManageService extends Service {
 
       // 计算加班信息
       const extra = await this.app.mysql.get('work_data_extra', { work_data_id: id });
-      console.log(id, extra);
       if (extra) {
         const { id: extraId, price: extraPrice, type: extraType } = extra;
         const _hours = safeDigit(extra.hours);
