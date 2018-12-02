@@ -371,11 +371,12 @@ module.exports = class WorshopManageService extends Service {
     data.end = moment(end).clone().format('YYYY-MM-DD');
     const _end = moment(data.end).clone().add(1, 'seconds');
     const workDataList = await this.getWorkData(userId, data.start, _end.format('YYYY-MM-DD'));    
-    const workData = [...workDataList].reduce((map, item) => {
-      m[moment(item.date).format('YYYY-MM-DD')] = item;
-      return m;
-    }, {});
-    console.log('workData', workData);
+    // const workData = workDataList.reduce((map, item) => {
+    //   m[moment(item.date).format('YYYY-MM-DD')] = item;
+    //   return m;
+    // }, {});
+    const workData = workDataList;
+    console.log('workData', workDataList);
     for (
       let i = start;
       moment(i).isBefore(_end);
