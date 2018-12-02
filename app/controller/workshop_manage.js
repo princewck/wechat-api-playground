@@ -65,6 +65,8 @@ module.exports = class WorkshopManageController extends Controller {
     await this.ctx.service.workshopManage.syncStorageSetting(user.id, data);
     this.ctx.status = 204;
    } catch (e) {
+     console.error(e);
+     this.ctx.logger.error(e);
      this.ctx.status = 403;
      this.ctx.body = {
        message: '同步设置失败！'
