@@ -319,7 +319,7 @@ module.exports = class WorshopManageService extends Service {
       date: {
         $between: [
           moment(start).clone().format('YYYY-MM-DD'), 
-          moment(_end).clone().format('YYYY-MM-DD')
+          moment(end).clone().format('YYYY-MM-DD')
         ],
       }
     }});
