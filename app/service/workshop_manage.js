@@ -315,7 +315,7 @@ module.exports = class WorshopManageService extends Service {
 
   async getWorkData(userId, start, end) {
     const workDataList = await this.app.mysql.query(`
-    select * from work_data where user_id = ? and \`date\` between ? and ?
+    select * from work_data where user_id = ? and \`date\` >= ? and \`date\` <= ?
     `, [userId, start, end]);
     const result = workDataList.reduce((map, item) => {
       map[moment(item.date).format('YYYY-MM-DD')] = item;
