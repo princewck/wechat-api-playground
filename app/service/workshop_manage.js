@@ -83,6 +83,7 @@ module.exports = class WorshopManageService extends Service {
     const extra = data.extraCategories || {};
     const exist = this.app.mysql.get('work_setting', {user_id: userId});
     if (exist) {
+      console.log('exist', exist);
       this.ctx.logger.warn('配置已存在，同步取消');
       console.info('配置已存在，同步取消');
       return;
