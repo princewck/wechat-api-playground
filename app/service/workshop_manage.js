@@ -344,7 +344,7 @@ module.exports = class WorshopManageService extends Service {
       pieceSallary: 0,
     };
     let config = await this.app.mysql.get('work_setting', {user_id: userId});
-    const pieceConfig = await this.app.mysql.select('work_setting_piece', {where: {user_id: userId}});
+    // const pieceConfig = await this.app.mysql.select('work_setting_piece', {where: {user_id: userId}});
     const { 
       per_hour_sallary = 0, 
       calc_method ,
@@ -456,35 +456,34 @@ module.exports = class WorshopManageService extends Service {
           data.pieceSallary += _sallary;
         }
       }
-
-
-      // 汇总
-      switch (calc_method) {
-        case 'primary_with_extra':
-          data.primarySallary = safeDigit(base_month_sallary) * durationMonths;
-          data.primaryAccurate = false;
-          break;
-        case 'hour_with_extra':
-          data.primaryAccurate = true;
-      }
-
-      data.totalHours = data.primaryHours + data.extraHours;
-      data.nightSallary = Number(safeDigit(per_night_extra) * data.nightDays).toFixed(2);
-
-      let totalSallary = safeDigit(data.nightSallary) + safeDigit(data.primarySallary);
-
-      if (calc_method && calc_method.includes('with_extra')) {
-        totalSallary += safeDigit(data.extraSallary);
-      }
-
-      // 计件
-      if (calc_method === 'by_count') {
-        totalSallary += safeDigit(data.pieceSallary);
-      }
-      data.pieceSallary = Number(data.pieceSallary).toFixed(2);
-      data.totalSallary = Number(totalSallary).toFixed(2);
-      return data;
     }
+    // 汇总
+    switch (calc_method) {
+      case 'primary_with_extra':
+        data.primarySallary = safeDigit(base_month_sallary) * durationMonths;
+        data.primaryAccurate = false;
+        break;
+      case 'hour_with_extra':
+        data.primaryAccurate = true;
+    }
+
+    data.totalHours = data.primaryHours + data.extraHours;
+    data.nightSallary = Number(safeDigit(per_night_extra) * data.nightDays).toFixed(2);
+
+    let totalSallary = safeDigit(data.nightSallary) + safeDigit(data.primarySallary);
+
+    if (calc_method && calc_method.includes('with_extra')) {
+      totalSallary += safeDigit(data.extraSallary);
+    }
+
+    // 计件
+    if (calc_method === 'by_count') {
+      totalSallary += safeDigit(data.pieceSallary);
+    }
+    data.pieceSallary = Number(data.pieceSallary).toFixed(2);
+    data.totalSallary = Number(totalSallary).toFixed(2);
+    return data;
+
   }
 
 
