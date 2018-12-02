@@ -49,7 +49,7 @@ module.exports = class WorshopManageService extends Service {
         const workDataId = record.id;
 
         // 同步加班信息
-        let extras = data.extras;
+        let extras = row.extras;
         if (!(extras instanceof Array)) {
           extras = [];
         }
@@ -66,7 +66,7 @@ module.exports = class WorshopManageService extends Service {
         }
 
         // 同步计件信息
-        if (data.count > 0) {
+        if (row.count > 0) {
           if (!countSetting) {
             countSetting = await this.app.mysql.get('work_setting_piece', {
               user_id: userId,
