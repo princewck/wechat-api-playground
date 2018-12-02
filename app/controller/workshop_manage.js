@@ -44,7 +44,7 @@ module.exports = class WorkshopManageController extends Controller {
       const header = this.ctx.header;
       const token = await this.ctx.service.auth.verify(header['w-session']);    
       const user = await this.ctx.service.user.getByToken(token);      
-      await this.ctx.service.workshopManage.syncStorageData(user.id, this.ctx.body);
+      await this.ctx.service.workshopManage.syncStorageData(user.id, this.ctx.request.body);
       this.ctx.status = 204;
     } catch (e) {
       console.error(e);
