@@ -373,7 +373,7 @@ module.exports = class WorshopManageService extends Service {
     const workData = await this.getWorkData(userId, data.start, _end.format('YYYY-MM-DD'));    
     console.log('workData', workData);
     for (
-      let i = start;
+      let i = moment(start).format('YYYY-MM-DD');
       moment(i).isBefore(_end);
       i = moment(i).clone()
         .add(1, 'days')
