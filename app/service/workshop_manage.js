@@ -22,6 +22,7 @@ module.exports = class WorshopManageService extends Service {
       const date = d.format('YYYY-MM-DD');
       const old = await this.app.mysql.get('work_data', { date });
       if (old) {
+        console.log(old);
         console.log('data in ', date, ' already exist, skipping...');
         continue;
       }
