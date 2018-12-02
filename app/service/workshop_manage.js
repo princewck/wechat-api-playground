@@ -81,11 +81,6 @@ module.exports = class WorshopManageService extends Service {
   // 向前兼容旧版设置
   async syncStorageSetting(userId, data) {
     const extra = data.extraCategories || {};
-    const exist = await this.app.mysql.get('work_setting', {user_id: userId});
-    if (exist) {
-      this.ctx.logger.warn('配置已存在，同步取消');
-      return;
-    }
     const conn = await this.app.mysql.beginTransaction();
     const setting = {
       user_id: userId,
@@ -119,8 +114,11 @@ module.exports = class WorshopManageService extends Service {
       setting.weekend_extra_price,
       setting.holiday_extra_price,
     ]);    
-    // await conn.insert('work_setting', setting);
-    await conn.insert('work_setting_piece', pieceSetting);
+    const pieceSettingExist = await this.app.mysql.get('work_setting_piece', {user_id: userId});
+    if (!pieceSettingExist) {
+      await conn.insert('work_setting_piece', pieceSetting);
+      this.ctx.logger.info('work_setting_piece already exists');
+    }
     await conn.commit();
   }
 
