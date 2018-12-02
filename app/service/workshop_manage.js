@@ -81,6 +81,7 @@ module.exports = class WorshopManageService extends Service {
   // 向前兼容旧版设置
   async syncStorageSetting(userId, data) {
     const extra = data.extraCategories || {};
+    const conn = this.app.mysql.beginTransaction();
     const setting = {
       user_id: userId,
       calc_method: data.calcMethod || 'primary_with_extra',
@@ -97,8 +98,24 @@ module.exports = class WorshopManageService extends Service {
       status: 1,
       price: data.pieceSallary,
     };
-    await this.app.mysql.insert('work_setting', setting);
-    await this.app.mysql.insert('work_setting_piece', pieceSetting);
+    await conn.query(`
+    insert into work_setting set user_id = ?, calc_method=?, per_hour_sallary = ?, base_month_sallary=?,
+    month_start = ?, weekday_extra_price = ?, weekend_extra_price = ?, holiday_extra_price = ? on duplicate key update 
+    calc_method = values(calc_method), per_hour_sallary = values(per_hour_sallary), base_month_sallary = values(base_month_sallary),
+    month_start = values(month_start), weekday_extra_price = values(weekday_extra_price), weekend_extra_price=values(weekend_extra_price),
+    holiday_extra_price = values(holiday_extra_price)
+    `, [
+      setting.user_id,
+      setting.calc_method,
+      setting.per_hour_sallary,
+      setting.base_month_sallary,
+      setting.month_start,
+      setting.weekday_extra_price,
+      setting.weekend_extra_price,
+      setting.holiday_extra_price,
+    ]);
+    await conn.insert('work_setting_piece', pieceSetting);
+    await conn.commit();
   }
 
 
@@ -175,6 +192,7 @@ module.exports = class WorshopManageService extends Service {
           await this.app.mysql.insert('work_setting_piece', payload);
         }
       }
+      await conn.commit();
     } catch (e) {
       this.logger.error(e);
       await conn.rollback();

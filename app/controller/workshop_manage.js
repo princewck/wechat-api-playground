@@ -63,6 +63,7 @@ module.exports = class WorkshopManageController extends Controller {
     const user = await this.ctx.service.user.getByToken(token);      
     const data = this.ctx.request.body;
     await this.ctx.service.workshopManage.syncStorageSetting(user.id, data);
+    this.ctx.status = 204;
    } catch (e) {
      this.ctx.status = 403;
      this.ctx.body = {
