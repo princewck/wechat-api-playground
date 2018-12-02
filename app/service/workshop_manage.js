@@ -78,7 +78,7 @@ module.exports = class WorshopManageService extends Service {
             count: data.count,
             price: safeDigit(data.piecePrice),
           };
-          await this.app.mysql.insert('work_setting_piece', piecePayload);
+          await this.app.mysql.insert('work_data_piece', piecePayload);
         }
       }
     }
