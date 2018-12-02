@@ -15,7 +15,7 @@ module.exports = class WorshopManageService extends Service {
   async syncStorageData(userId, data) {
     console.log(userId, data);
     let countSetting = null;
-    for (key in data) {
+    for (let key in data) {
       const d = moment(key);
       const valid = d.isValid();
       const date = d.format('YYYY-MM-DD');
