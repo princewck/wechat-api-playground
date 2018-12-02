@@ -25,7 +25,6 @@ module.exports = class AuthService extends Service {
   async verify(token) {
     // 操作数据库更新登录数据
     const user = await this.ctx.service.user.getByToken(token);
-    console.log('user', user);
     if (!user) {
       throw new Error('invalid user');
     }
