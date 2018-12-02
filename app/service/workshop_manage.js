@@ -352,8 +352,7 @@ module.exports = class WorshopManageService extends Service {
       month_start = 1,
       piece_price = 0,
       per_night_extra = 0,
-    } = config || {};    
-    const _end = moment(end).add(1, 'seconds');
+    } = config || {};  
     const days = (moment(end) - moment(start))/(1000 * 3600 * 24);
     let durationMonths = Math.floor(days/30) + Math.floor((days%30+7)/30);
     durationMonths = durationMonths < 0 ? 0 : durationMonths;
@@ -370,7 +369,8 @@ module.exports = class WorshopManageService extends Service {
     }
     data.start = moment(start).clone().format('YYYY-MM-DD');
     data.end = moment(end).clone().format('YYYY-MM-DD');
-    const workData = await this.getWorkData(userId, start, end);    
+    const _end = moment(data.end).clone().add(1, 'seconds');
+    const workData = await this.getWorkData(userId, data.start, _end.format('YYYY-MM-DD'));    
 
     for (
       let i = start;
