@@ -499,7 +499,10 @@ module.exports = class WorshopManageService extends Service {
         data.extra_info = extraData;
       }
     }
-    return data;
+    return {
+      date,
+      data,
+    };
   }
 
 
