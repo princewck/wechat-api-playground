@@ -279,13 +279,20 @@ module.exports = class WorshopManageService extends Service {
     if (extras && extras.length) {
       const extra = extras[0];
       const extraPayload = {
-        ...(extra.id ? {id: extra.id} : {}),
         work_data_id: record.id,
         type: extra.type,
         price: extra.price,
         hours: extra.hours,
       };
-      await this.app.mysql.insert('work_data_extra', extraPayload);
+      const exist = await this.app.mysql.get('work_data_extra', {work_data_id: record.id});
+      if (exist) {
+        await this.app.mysql.update('work_data_extra', {
+          id: exist.id, 
+          ...extraPayload,
+        })
+      } else {
+        await this.app.mysql.insert('work_data_extra', extraPayload);
+      }
     }
 
     if (piece_info && piece_info.length) {
