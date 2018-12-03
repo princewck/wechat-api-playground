@@ -499,7 +499,7 @@ module.exports = class WorshopManageService extends Service {
         const pieceData = await this.app.mysql.select('work_data_piece', {work_data_id: data.id});
         data.piece_info = pieceData;
       } else {
-        const extraData = await this.app.mysql.select('work_data_piece', {work_data_id: data.id});
+        const extraData = await this.app.mysql.select('work_data_extra', {work_data_id: data.id});
         data.extra_info = extraData;
       }
     }
