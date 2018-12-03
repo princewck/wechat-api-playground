@@ -483,6 +483,7 @@ module.exports = class WorshopManageService extends Service {
     if (calc_method === 'by_count') {
       totalSallary += safeDigit(data.pieceSallary);
     }
+    data.extraSallary = Number(data.extraSallary).toFixed(2);
     data.pieceSallary = Number(data.pieceSallary).toFixed(2);
     data.totalSallary = Number(totalSallary).toFixed(2);
     return data;
