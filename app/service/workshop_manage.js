@@ -136,19 +136,15 @@ module.exports = class WorshopManageService extends Service {
       month_start = 1,
     } = setting;
     return {
-      calcMethod: calc_method,
-      extraCategories: {
-        weekday: weekday_extra_price,
-        weekend: weekend_extra_price,
-        holiday: holiday_extra_price,
-      },
-      others: {
-        night: per_night_extra,
-      },
-      baseSallary: base_month_sallary,
-      sallaryPerHour: per_hour_sallary,
-      monthStart: month_start,
-      pieceSetting: pieceSetting,
+      calc_method,
+      weekday_extra_price,
+      weekend_extra_price,
+      holiday_extra_price,
+      per_night_extra,
+      base_month_sallary,
+      per_hour_sallary,
+      month_start,
+      piece_setting: pieceSetting,
     };
   }
 
@@ -274,7 +270,7 @@ module.exports = class WorshopManageService extends Service {
       ...(comment ? { comment } : {}),
     };
     if (record && record.id) {
-      await this.app.mysql.update('wwork_data', {id: record.id, ...payload});
+      await this.app.mysql.update('work_data', {id: record.id, ...payload});
     } else {
       await this.app.mysql.insert('work_data', payload);
       record = await this.app.mysql.get('work_data', {user_id: userId, date});
