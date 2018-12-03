@@ -118,25 +118,6 @@ module.exports = class WorkshopManageController extends Controller {
     }
   }
 
-  async getData() {
-    try {
-      const { start, end } = this.ctx.request.body;
-      if (!moment(start).isValid() || !moment(end).isValid()) {
-        throw new Error('时间未指定或格式不正确');
-      }
-      const header = this.ctx.header;
-      const token = await this.ctx.service.auth.verify(header['w-session']);    
-      const user = await this.ctx.service.user.getByToken(token);  
-      const result = await this.ctx.service.workshopManage.getData(user.id, start, end);
-      this.ctx.body = result;
-    } catch (e) {
-      this.ctx.status = 403;
-      this.ctx.body = {
-        message: '获取工时记录失败'
-      };
-    }
-  }
-
   async update() {
     try {
       const { date, data } = this.ctx.request.body;
@@ -178,6 +159,20 @@ module.exports = class WorkshopManageController extends Controller {
     }
   }
 
-
+  async getWorkDataByDay() {
+    try {
+      const header = this.ctx.header;
+      const token = await this.ctx.service.auth.verify(header['w-session']);    
+      const user = await this.ctx.service.user.getByToken(token);   
+      const { date } = this.ctx.request.body;
+      const data = await this.ctx.service.workshopManage.getWorkDataByDay(user.id, date);
+      return data;
+    } catch (e) {
+      this.ctx.status = 403;
+      this.ctx.body = {
+        message: '获取数据失败',
+      };
+    }
+  }
 
 }

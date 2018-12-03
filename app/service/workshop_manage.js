@@ -221,36 +221,36 @@ module.exports = class WorshopManageService extends Service {
     await this.app.mysql.insert('work_setting_piece', pieceSetting);
   }
 
-  // 获取一段时间的数据 ????
-  async getData(userId, start, end) {
-    const settings = await this.app.mysql.select('work_data', {
-      where: {
-        date: {
-          $between: [start, end],
-        },
-        user_id: userId,
-      }
-    });
-    for (let i = 0; i < settings.length; i++) {
-      const calcMethod = setting.calc_method || '';
-      if (calcMethod.includes('extra')) {
-        const setting = settings[i];
-        const extra = await this.app.mysql.get('work_data_extra', {
-          work_data_id: setting.id
-        });
-        settings[i].extras = [extra];
-      }
-      if (calcMethod === 'by_count') {
-        const pieceInfo = await this.app.mysql.select('work_data_piece', {
-          where: {
-            work_data_id: setting.id
-          }
-        });
-        settings[i].piece_info = pieceInfo;
-      }
-    }
-    return settings;
-  }
+  // // 获取一段时间的数据 ????
+  // async getData(userId, start, end) {
+  //   const settings = await this.app.mysql.select('work_data', {
+  //     where: {
+  //       date: {
+  //         $between: [start, end],
+  //       },
+  //       user_id: userId,
+  //     }
+  //   });
+  //   for (let i = 0; i < settings.length; i++) {
+  //     const calcMethod = setting.calc_method || '';
+  //     if (calcMethod.includes('extra')) {
+  //       const setting = settings[i];
+  //       const extra = await this.app.mysql.get('work_data_extra', {
+  //         work_data_id: setting.id
+  //       });
+  //       settings[i].extras = [extra];
+  //     }
+  //     if (calcMethod === 'by_count') {
+  //       const pieceInfo = await this.app.mysql.select('work_data_piece', {
+  //         where: {
+  //           work_data_id: setting.id
+  //         }
+  //       });
+  //       settings[i].piece_info = pieceInfo;
+  //     }
+  //   }
+  //   return settings;
+  // }
 
   // 更新某天的数据
   async update(userId, date, data) {
@@ -302,14 +302,6 @@ module.exports = class WorshopManageService extends Service {
       });
       await this.app.mysql.insert('work_data_piece', rows);
     }
-
-  }
-
-  async getHomeInfo(userId, date) {
-    const setting = await this.app.mysql.get({date});
-    const method = setting.calcMethod;
-
-
 
   }
 
@@ -488,6 +480,26 @@ module.exports = class WorshopManageService extends Service {
     data.totalSallary = Number(totalSallary).toFixed(2);
     return data;
 
+  }
+
+  async getWorkDataByDay(userId, date) {
+    if (!date) {
+      date = moment().format('YYYY-MM-DD');
+    } else {
+      date = moment(date).format('YYYY-MM-DD');
+    }
+    const data = await this.app.mysql.get('work_data', {user_id: userId, date});
+    const settings = await this.getSetting(userId);
+    if (data) {
+      if (settings.calc_method === 'by_count') {
+        const pieceData = await this.app.mysql.select('work_data_piece', {work_data_id: data.id});
+        data.piece_info = pieceData;
+      } else {
+        const extraData = await this.app.mysql.select('work_data_piece', {work_data_id: data.id});
+        data.extra_info = extraData;
+      }
+    }
+    return data;
   }
 
 
