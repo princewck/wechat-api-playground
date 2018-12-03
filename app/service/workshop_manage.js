@@ -344,6 +344,9 @@ module.exports = class WorshopManageService extends Service {
       pieceSallary: 0,
     };
     let config = await this.app.mysql.get('work_setting', {user_id: userId});
+
+    data.calc_method = config.calc_method;
+  
     // const pieceConfig = await this.app.mysql.select('work_setting_piece', {where: {user_id: userId}});
     const { 
       per_hour_sallary = 0, 
