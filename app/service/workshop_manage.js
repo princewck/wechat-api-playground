@@ -342,10 +342,11 @@ module.exports = class WorshopManageService extends Service {
       totalPieces: 0,
       pieceInfo: [],
       pieceSallary: 0,
+      calcMethod: null,
     };
     let config = await this.app.mysql.get('work_setting', {user_id: userId});
 
-    data.calc_method = config.calc_method;
+    data.calcMethod = config.calc_method;
   
     // const pieceConfig = await this.app.mysql.select('work_setting_piece', {where: {user_id: userId}});
     const { 
