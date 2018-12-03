@@ -166,7 +166,7 @@ module.exports = class WorkshopManageController extends Controller {
       const user = await this.ctx.service.user.getByToken(token);   
       const { date } = this.ctx.request.body;
       const data = await this.ctx.service.workshopManage.getWorkDataByDay(user.id, date);
-      return data;
+      this.ctx.body = data;
     } catch (e) {
       this.ctx.status = 403;
       this.ctx.body = {
