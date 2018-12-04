@@ -70,13 +70,13 @@ module.exports = app => {
 
 
   // 工时设置相关
-  router.get('/work/setting', controller.workshopManage.getSetting);
-  router.post('/work/setting', controller.workshopManage.createDefaultSetting);
-  router.put('/work/setting', controller.workshopManage.updateSetting);
+  router.get('/work/setting', auth, controller.workshopManage.getSetting);
+  router.post('/work/setting', auth, controller.workshopManage.createDefaultSetting);
+  router.put('/work/setting', auth, controller.workshopManage.updateSetting);
 
-  router.get('/work/data', controller.workshopManage.getWorkDataByDay);
-  router.post('/work/data', controller.workshopManage.update);
+  router.get('/work/data', auth, controller.workshopManage.getWorkDataByDay);
+  router.post('/work/data', auth, controller.workshopManage.update);
 
-  router.get('/work/statistics', controller.workshopManage.getCalcInfo);
+  router.get('/work/statistics', auth, controller.workshopManage.getCalcInfo);
 
 };
