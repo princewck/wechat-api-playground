@@ -518,7 +518,7 @@ module.exports = class WorshopManageService extends Service {
         data.piece_info = pieceData;
       } else {
         const extraData = await this.app.mysql.select('work_data_extra', {where: {work_data_id: data.id}});
-        data.extras = extraData;
+        data.extra_info = extraData;
       }
     }
     return {
