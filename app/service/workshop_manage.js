@@ -319,6 +319,18 @@ module.exports = class WorshopManageService extends Service {
     const workDataList = await this.app.mysql.query(`
     select * from work_data where user_id = ? and \`date\` >= ? and \`date\` <= ?
     `, [userId, start, end]);
+    for (let i = 0; i < workDataList.length; i ++) {
+      try {
+        const item = workDataList[i];
+        const extras = await this.app.mysql.select('work_data_extra', {where: {work_data_id: item.id}});
+        const pieceInfo = await this.app.mysql.select('work_data_piece', {where: {work_data_id: item.id}});
+        item.extras = extras;
+        item.piece_info = pieceInfo;        
+      } catch (e) {
+        this.logger.error(e);
+        console.error(e);
+      }
+    }
     const result = workDataList.reduce((map, item) => {
       map[moment(item.date).format('YYYY-MM-DD')] = item;
       return map;
