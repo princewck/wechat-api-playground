@@ -75,7 +75,7 @@ module.exports = app => {
   router.put('/work/setting', auth, controller.workshopManage.updateSetting);
 
   router.get('/work/data', auth, controller.workshopManage.getWorkDataByDay);
-  router.get('/work/data/list', auth, controller.workshopManage.getWorkDataByDay);
+  router.get('/work/data/list', auth, controller.workshopManage.getWorkDataList);
   router.post('/work/data', auth, controller.workshopManage.update);
 
   router.get('/work/statistics', auth, controller.workshopManage.getCalcInfo);
