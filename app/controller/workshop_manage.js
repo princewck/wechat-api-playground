@@ -161,6 +161,22 @@ module.exports = class WorkshopManageController extends Controller {
     }
   }
 
+  async getWorkDataList() {
+    try {
+      const header = this.ctx.header;
+      const token = await this.ctx.service.auth.verify(header['w-session']);    
+      const user = await this.ctx.service.user.getByToken(token);   
+      const { start, end } = this.ctx.request.query;      
+      const data = await this.ctx.service.workshopManage.getWorkData(user.id, start, end);
+      this.ctx.body = data;
+    } catch (e) {
+      this.ctx.status = 403;
+      this.ctx.body = {
+        message: '获取数据失败',
+      }
+    }
+  }
+
   async getWorkDataByDay() {
     try {
       const header = this.ctx.header;
