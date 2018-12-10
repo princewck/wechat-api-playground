@@ -159,7 +159,7 @@ module.exports = class WorshopManageService extends Service {
       holiday_extra_price,
       piece_info,
     } = data;
-    const record = await this.app.mysql.get({ user_id: userId });
+    const record = await this.app.mysql.get('work_setting', { user_id: userId });
     const conn = await this.app.mysql.beginTransaction();
     const setting = {
       id: record.id,
