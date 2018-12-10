@@ -99,6 +99,7 @@ module.exports = class WorkshopManageController extends Controller {
       const data = this.ctx.request.body;
       await this.ctx.service.workshopManage.updateSetting(user.id, data);
     } catch (e) {
+      console.error(e);
       this.ctx.status = 403;
       this.ctx.body = {
         message: '更新设置失败！'
