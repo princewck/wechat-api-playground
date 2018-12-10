@@ -184,7 +184,11 @@ module.exports = class WorshopManageService extends Service {
             name: info.name,
             status: info.status,
           }
-          await this.app.mysql.insert('work_setting_piece', payload);
+          if (info.id) {
+            await this.app.mysql.update('work_setting_piece', info);
+          } else {
+            await this.app.mysql.insert('work_setting_piece', payload);
+          }
         }
       }
       await conn.commit();
