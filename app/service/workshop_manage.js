@@ -160,7 +160,7 @@ module.exports = class WorshopManageService extends Service {
       piece_info,
     } = data;
     const record = await this.app.mysql.get({ user_id: userId });
-    const conn = this.app.mysql.beginTransaction();
+    const conn = await this.app.mysql.beginTransaction();
     const setting = {
       id: record.id,
       user_id: userId,
@@ -185,9 +185,9 @@ module.exports = class WorshopManageService extends Service {
             status: info.status,
           }
           if (info.id) {
-            await this.app.mysql.update('work_setting_piece', info);
+            await conn.update('work_setting_piece', info);
           } else {
-            await this.app.mysql.insert('work_setting_piece', payload);
+            await conn.insert('work_setting_piece', payload);
           }
         }
       }
