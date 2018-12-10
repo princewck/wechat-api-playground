@@ -157,6 +157,7 @@ module.exports = class WorshopManageService extends Service {
       weekday_extra_price,
       weekend_extra_price,
       holiday_extra_price,
+      per_night_extra,
       piece_info,
     } = data;
     const record = await this.app.mysql.get('work_setting', { user_id: userId });
