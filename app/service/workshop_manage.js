@@ -171,6 +171,7 @@ module.exports = class WorshopManageService extends Service {
       ...(weekday_extra_price ? { weekday_extra_price } : {}),
       ...(weekend_extra_price ? { weekend_extra_price } : {}),
       ...(holiday_extra_price ? { holiday_extra_price } : {}),
+      ...(per_night_extra ? { per_night_extra }: {}),
     }
     try {
       await conn.update('work_setting', setting);
