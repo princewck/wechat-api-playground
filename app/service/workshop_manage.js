@@ -307,7 +307,7 @@ module.exports = class WorshopManageService extends Service {
         await conn.delete('work_data_piece', {
           work_data_id: record.id,
         });
-        rows = piece_info.map(info => {
+        const rows = piece_info.map(info => {
           return {
             count_setting_id: info.setting_id,
             count: info.count,
