@@ -430,6 +430,7 @@ module.exports = class WorshopManageService extends Service {
         } else {
           data.primaryPrice = primary_price;
         }
+        data.primarySallary += safeDigit(primary_hours) * data.primaryPrice;
       }
 
       // 计算加班信息
