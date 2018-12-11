@@ -302,15 +302,24 @@ module.exports = class WorshopManageService extends Service {
     }
 
     if (piece_info && piece_info.length) {
-      rows = piece_info.map(info => {
-        return {
-          count_setting_id: info.setting_id,
-          count: info.count,
-          price: info.price,
+      try {
+        const conn = await this.app.mysql.beginTransaction();
+        await conn.delete('work_data_piece', {
           work_data_id: record.id,
-        };
-      });
-      await this.app.mysql.insert('work_data_piece', rows);
+        });
+        rows = piece_info.map(info => {
+          return {
+            count_setting_id: info.setting_id,
+            count: info.count,
+            price: info.price,
+            work_data_id: record.id,
+          };
+        });
+        await conn.insert('work_data_piece', rows);
+        await conn.commit();
+      } catch (e) {
+        await conn.rollback();
+      }
     }
 
   }
