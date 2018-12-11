@@ -124,7 +124,7 @@ module.exports = class WorshopManageService extends Service {
     if (!setting) {
       return null;
     }
-    const pieceSetting = await this.app.mysql.select('work_setting_piece', { where: { user_id: userId } });
+    const pieceSetting = await this.app.mysql.select('work_setting_piece', { where: { user_id: userId, status: 1 } });
     const {
       calc_method,
       weekday_extra_price = 0,
