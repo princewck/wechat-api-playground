@@ -322,14 +322,21 @@ module.exports = class WorshopManageService extends Service {
     if (!end) {
       end = moment().endOf('month').format('YYYY-MM-DD');
     }
+    const setting = await this.getSetting(userId);
     const workDataList = await this.app.mysql.query(`
     select * from work_data where user_id = ? and \`date\` >= ? and \`date\` <= ?
     `, [userId, start, end]);
     for (let i = 0; i < workDataList.length; i ++) {
       try {
         const item = workDataList[i];
-        const extras = await this.app.mysql.select('work_data_extra', {where: {work_data_id: item.id}});
-        const pieceInfo = await this.app.mysql.select('work_data_piece', {where: {work_data_id: item.id}});
+        let extras = [];
+        let pieceInfo = [];
+        if (setting.calc_method === 'by_count') {
+          pieceInfo = await this.app.mysql.select('work_data_piece', {where: {work_data_id: item.id}});
+        }
+        if (setting.calc_method && setting.calc_method.includes('extra')) {
+          extras = await this.app.mysql.select('work_data_extra', {where: {work_data_id: item.id}});
+        }
         item.extras = extras;
         item.piece_info = pieceInfo;        
       } catch (e) {
