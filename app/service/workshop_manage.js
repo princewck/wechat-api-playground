@@ -144,7 +144,7 @@ module.exports = class WorshopManageService extends Service {
       base_month_sallary,
       per_hour_sallary,
       month_start,
-      piece_setting: pieceSetting,
+      piece_info: pieceSetting,
     };
   }
 
