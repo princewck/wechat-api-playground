@@ -57,7 +57,6 @@ module.exports = class AuthService extends Service {
     const salt = this.ctx.helper.randomStr();
     const token = _genToken(openid, session_key, userinfo, salt, this.config.jwt.private_key, appName);
     const time = +new Date();
-    const exist = await this.app.mysql.get('user', {open_id: openid});
     const { 
       nickName = '', 
       avatarUrl = '', 
@@ -84,11 +83,6 @@ module.exports = class AuthService extends Service {
     await this.app.mysql.query(sql, [
       openid, session_key, nickName, avatarUrl, gender, province, city, token, salt, time, time, appName
     ]);
-    if (!exist) {
-      console.log('不存在的用户，初始化配置');
-      const record = await this.app.mysql.get('user', {open_id: openid});
-      await this.ctx.service.workshopManage.createDefaultSetting(record.id);
-    }
     return token;
   }
 
