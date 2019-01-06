@@ -382,7 +382,8 @@ module.exports = class WorshopManageService extends Service {
       pieceSallary: 0,
       calcMethod: null,
     };
-    let config = await this.app.mysql.get('work_setting', {user_id: userId});
+    let config = await this.getSetting(userId);
+
 
     data.calcMethod = config.calc_method;
   
