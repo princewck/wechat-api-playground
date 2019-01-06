@@ -86,7 +86,7 @@ module.exports = class AuthService extends Service {
     ]);
     if (!exist) {
       console.log('不存在的用户，初始化配置');
-      const record = this.app.mysql.get('user', {open_id: openid});
+      const record = await this.app.mysql.get('user', {open_id: openid});
       await this.ctx.service.workshopManage.createDefaultSetting(record.id);
     }
     return token;
