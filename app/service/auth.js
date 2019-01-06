@@ -57,7 +57,7 @@ module.exports = class AuthService extends Service {
     const salt = this.ctx.helper.randomStr();
     const token = _genToken(openid, session_key, userinfo, salt, this.config.jwt.private_key, appName);
     const time = +new Date();
-    const exist = await this.app.mysql.get('user', {oprn_id: openid});
+    const exist = await this.app.mysql.get('user', {open_id: openid});
     const { 
       nickName = '', 
       avatarUrl = '', 
