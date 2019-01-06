@@ -122,7 +122,9 @@ module.exports = class WorshopManageService extends Service {
   async getSetting(userId) {
     const setting = await this.app.mysql.get('work_setting', { user_id: userId });
     if (!setting) {
-      return null;
+      console.log('配置不存在，先来创建一份默认的');
+      await this.createDefaultSetting(userId);
+      return await this.getSetting(userId);
     }
     const pieceSetting = await this.app.mysql.select('work_setting_piece', { where: { user_id: userId, status: 1 } });
     const {
