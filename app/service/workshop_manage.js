@@ -348,7 +348,7 @@ module.exports = class WorshopManageService extends Service {
         let extras = [];
         let pieceInfo = [];
         if (setting.calc_method === 'by_count') {
-          pieceInfo = await this.app.mysql.select('work_data_piece', {where: {work_data_id: item.id}}).toJSON();
+          pieceInfo = await this.app.mysql.select('work_data_piece', {where: {work_data_id: item.id}});
           pieceInfo.forEach(item => {
             item.name = pieceSettingMap[item.count_setting_id];
           })
