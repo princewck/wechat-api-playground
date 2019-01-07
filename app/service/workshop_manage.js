@@ -351,6 +351,7 @@ module.exports = class WorshopManageService extends Service {
           pieceInfo = await this.app.mysql.select('work_data_piece', {where: {work_data_id: item.id}});
           pieceInfo.forEach(item => {
             item.name = pieceSettingMap[item.count_setting_id];
+            item.total = +Number((item.price || 0) * (item.count || 0)).toFixed(2);
           })
         }
         if (setting.calc_method && setting.calc_method.includes('extra')) {
