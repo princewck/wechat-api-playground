@@ -347,18 +347,24 @@ module.exports = class WorshopManageService extends Service {
         const item = workDataList[i];
         let extras = [];
         let pieceInfo = [];
+        let pieceCount = 0;
+        let pieceSallary = 0;
         if (setting.calc_method === 'by_count') {
           pieceInfo = await this.app.mysql.select('work_data_piece', {where: {work_data_id: item.id}});
-          pieceInfo.forEach(item => {
-            item.name = pieceSettingMap[item.count_setting_id];
-            item.total = +Number((item.price || 0) * (item.count || 0)).toFixed(2);
+          pieceInfo.forEach(item2 => {
+            item2.name = pieceSettingMap[item2.count_setting_id];
+            item2.total = +Number((item2.price || 0) * (item2.count || 0)).toFixed(2);
+            pieceCount += +item2.count || 0;
+            pieceSallary += item2.total;
           })
         }
         if (setting.calc_method && setting.calc_method.includes('extra')) {
           extras = await this.app.mysql.select('work_data_extra', {where: {work_data_id: item.id}});
         }
         item.extras = extras;
-        item.piece_info = pieceInfo;        
+        item.piece_info = pieceInfo;    
+        item.piece_count = pieceCount;
+        item.piece_sallary = pieceSallary;    
       } catch (e) {
         this.logger.error(e);
         console.error(e);
