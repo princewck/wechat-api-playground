@@ -398,8 +398,8 @@ module.exports = class WorshopManageService extends Service {
       calcMethod: null,
     };
     let config = await this.getSetting(userId);
-
-
+    const pieceInfo = [];
+    const pieceInfoAggreageMap = {};
     data.calcMethod = config.calc_method;
   
     // const pieceConfig = await this.app.mysql.select('work_setting_piece', {where: {user_id: userId}});
@@ -506,10 +506,20 @@ module.exports = class WorshopManageService extends Service {
         d.total = d.total || 0;
         const _pieceData = pieceDataMap[d.id];
         if (_pieceData) {
-          data.pieceInfo.push({
+          // 这里的price是不准的，只看汇总的结果
+          const _info = {
             ..._pieceData,
             name: d.name,
-          });
+            total: +Number(_pieceData.count * _pieceData.price).toFixed(2)
+          };
+          if (!pieceInfoAggreageMap[d.id]) {
+            pieceInfoAggreageMap[d.id] = _info;
+            pieceInfo.push(_info);
+          } else {
+            const _info2 = pieceInfoAggreageMap[d.id];
+            _info2.count += _pieceData.count;
+            _info2.total += +Number(_pieceData.count * _pieceData.price).toFixed(2);
+          }
           const _dayPieceInfo = pieceDataMap[d.id];
           const _count  = safeDigit(_dayPieceInfo.count);
           const _sallary = safeDigit(_dayPieceInfo.price) * safeDigit(_dayPieceInfo.count);
@@ -520,6 +530,7 @@ module.exports = class WorshopManageService extends Service {
         }
       }
     }
+    data.pieceInfo = pieceInfo;
     // 汇总
     switch (calc_method) {
       case 'primary_with_extra':
