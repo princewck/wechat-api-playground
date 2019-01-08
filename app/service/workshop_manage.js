@@ -504,7 +504,12 @@ module.exports = class WorshopManageService extends Service {
       for (let i = 0; i < pieceSettings.length; i++) {
         const d = {...pieceSettings[i]};
         d.total = d.total || 0;
-        if (pieceDataMap[d.id]) {
+        const _pieceData = pieceDataMap[d.id];
+        if (_pieceData) {
+          data.pieceInfo.push({
+            ..._pieceData,
+            name: d.name,
+          });
           const _dayPieceInfo = pieceDataMap[d.id];
           const _count  = safeDigit(_dayPieceInfo.count);
           const _sallary = safeDigit(_dayPieceInfo.price) * safeDigit(_dayPieceInfo.count);
