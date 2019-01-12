@@ -31,7 +31,7 @@ module.exports = class UserService extends Service {
     });
     return {
       current: +page,
-      total_pages: Math.ceil(count / 20),
+      total_pages: Math.ceil(count / 10),
       count,
       list,
     }
