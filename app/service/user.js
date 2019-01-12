@@ -25,8 +25,8 @@ module.exports = class UserService extends Service {
     const list = await this.app.mysql.select('user', {
       where: { ...conditions },
       columns,
-      limit: 20,
-      offset: (page - 1) * 20,
+      limit: 10,
+      offset: (page - 1) * 10,
       order: [['last_login', 'desc']]
     });
     return {
