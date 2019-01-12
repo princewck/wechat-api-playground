@@ -300,7 +300,7 @@ module.exports = class WorshopManageService extends Service {
             ...extraPayload,
           })
         } else {
-          await exist.destroy();
+          await this.app.mysql.delete('work_data_extra', { id: exist.id });
         }
       } else {
         await this.app.mysql.insert('work_data_extra', extraPayload);
