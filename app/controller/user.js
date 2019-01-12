@@ -4,12 +4,14 @@ module.exports = class UserController extends Controller {
 
   async list() {
     try {
-      const users = await this.ctx.service.user.list();
+      const { page = 1, appName } = this.ctx.query;
+      const users = await this.ctx.service.user.list(page, appName);
       this.ctx.body = {
         success: true,
         data: users,
       };
     } catch (e) {
+      console.error(e);
       this.ctx.body = {
         success: false,
         message: e && e.message

@@ -15,10 +15,19 @@ module.exports = class UserService extends Service {
     return await this.app.mysql.get('user', {id});
   }
 
-  async list() {
-    return await this.app.mysql.select('user', {
-      columns: ['id', 'avatar', 'gender', 'province', 'city', 'nick', 'open_id', 'last_login', 'first_login'],
-    });
+  async list(page, app) {
+    const tableName = 'user';
+    const conditions = {
+      app_name: app,
+    }
+    const columns = ['id', 'avatar', 'gender', 'province', 'city', 'nick', 'last_login', 'first_login', 'app_name'];
+    const count = await this.app.mysql.count(tableName, conditions);
+    const list = await this.app.mysql.select('user', { where: {...conditions}, columns });
+    return {
+      current: +page,
+      total_pages: Math.ceil(count / 20),
+      count,
+      list,
+    }
   }
-
 }
