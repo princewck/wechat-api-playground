@@ -27,7 +27,7 @@ module.exports = class UserService extends Service {
       columns,
       limit: 10,
       offset: (page - 1) * 10,
-      order: [['last_login', 'desc']]
+      orders: [['last_login', 'desc']]
     });
     return {
       current: +page,
