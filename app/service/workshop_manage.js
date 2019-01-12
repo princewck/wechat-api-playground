@@ -294,10 +294,14 @@ module.exports = class WorshopManageService extends Service {
       };
       const exist = await this.app.mysql.get('work_data_extra', {work_data_id: record.id});
       if (exist) {
-        await this.app.mysql.update('work_data_extra', {
-          id: exist.id, 
-          ...extraPayload,
-        })
+        if (extraPayload.hours > 0) {
+          await this.app.mysql.update('work_data_extra', {
+            id: exist.id, 
+            ...extraPayload,
+          })
+        } else {
+          await exist.destroy();
+        }
       } else {
         await this.app.mysql.insert('work_data_extra', extraPayload);
       }
