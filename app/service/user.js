@@ -4,15 +4,15 @@ module.exports = class UserService extends Service {
 
 
   async getByOpenid(openid) {
-    return await this.app.mysql.get('user', {open_id});
+    return await this.app.mysql.get('user', { open_id });
   }
 
   async getByToken(token) {
-    return await this.app.mysql.get('user', {token});
+    return await this.app.mysql.get('user', { token });
   }
 
   async getById(id) {
-    return await this.app.mysql.get('user', {id});
+    return await this.app.mysql.get('user', { id });
   }
 
   async list(page, app) {
@@ -22,7 +22,12 @@ module.exports = class UserService extends Service {
     }
     const columns = ['id', 'avatar', 'gender', 'province', 'city', 'nick', 'last_login', 'first_login', 'app_name'];
     const count = await this.app.mysql.count(tableName, conditions);
-    const list = await this.app.mysql.select('user', { where: {...conditions}, columns });
+    const list = await this.app.mysql.select('user', {
+      where: { ...conditions },
+      columns,
+      limit: 20,
+      offset: (page - 1) * 20,
+    });
     return {
       current: +page,
       total_pages: Math.ceil(count / 20),
