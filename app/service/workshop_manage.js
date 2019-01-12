@@ -272,8 +272,8 @@ module.exports = class WorshopManageService extends Service {
     const payload = {
       date: fmtDate,
       user_id: userId,
-      ...(primary_hours ? {primary_hours} : {}),
-      ...(primary_price ? { primary_price } : {}),
+      ...(primary_hours !== undefined ? {primary_hours} : {}),
+      ...(primary_price !== undefined ? { primary_price } : {}),
       ...(absent ? {absent}: {}),
       ...(duty_type ? {duty_type} : {}),
       ...(comment ? { comment } : {}),
