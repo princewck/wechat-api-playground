@@ -259,7 +259,7 @@ module.exports = class WorshopManageService extends Service {
   // 更新某天的数据
   async update(userId, date, data) {
     const fmtDate = moment(date).format('YYYY-MM-DD');
-    let record = await this.app.mysql.get('work_data', {date: fmtDate});
+    let record = await this.app.mysql.get('work_data', {date: fmtDate, user_id: userId});
     const { 
       primary_hours, 
       primary_price, 
@@ -279,7 +279,7 @@ module.exports = class WorshopManageService extends Service {
       ...(comment ? { comment } : {}),
     };
     if (record && record.id) {
-      await this.app.mysql.update('work_data', {id: record.id, ...payload});
+      await this.app.mysql.update('work_data', {id: record.id, ...payload}, );
     } else {
       await this.app.mysql.insert('work_data', payload);
       record = await this.app.mysql.get('work_data', {user_id: userId, date: fmtDate});
