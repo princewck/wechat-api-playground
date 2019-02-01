@@ -569,7 +569,7 @@ module.exports = class WorshopManageService extends Service {
     if (!date) {
       date = moment().format('YYYY-MM-DD');
     } else {
-      date = moment(date).format('YYYY-MM-DD');
+      date = moment(new Date(date)).format('YYYY-MM-DD');
     }
     const data = await this.app.mysql.get('work_data', {user_id: userId, date});
     const settings = await this.getSetting(userId);
