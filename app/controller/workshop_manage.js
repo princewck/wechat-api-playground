@@ -184,7 +184,7 @@ module.exports = class WorkshopManageController extends Controller {
       const header = this.ctx.header;
       const token = await this.ctx.service.auth.verify(header['w-session']);    
       const user = await this.ctx.service.user.getByToken(token);   
-      const { date } = this.ctx.request.body;
+      const { date } = this.ctx.query;
       const data = await this.ctx.service.workshopManage.getWorkDataByDay(user.id, date);
       this.ctx.body = data;
     } catch (e) {
