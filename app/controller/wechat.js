@@ -55,6 +55,36 @@ module.exports = class WechatController extends Controller {
     }
   }
 
+  async loginAward() {
+    try {
+      await this.ctx.service.bonusPoint.loginAward();
+      this.ctx.body = {
+        status: 'success',
+        amount: 2,
+      }
+    } catch (e) {
+      this.ctx.status = 403;
+      this.ctx.body = {
+        status: 'fail',
+        amount: 0,
+        message: e.message,
+      };
+    }
+  }
+
+  async checkAvailableBP() {
+    try {
+      const bp = await this.ctx.service.bonusPoint.checkAvailableBP();
+      this.ctx.body = {
+        amount: bp,
+      };
+    } catch (e) {
+      this.ctx.status = 403;
+      this.ctx.body = {
+        message: e.message,
+      };
+    }
+  }
 
 
 

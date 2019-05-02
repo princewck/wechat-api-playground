@@ -10,7 +10,7 @@ module.exports = appInfo => {
   .argv()
   .env()
   .file({
-    file: isLocal ? '/usr/local/opt/push_test/config.json' : '/usr/local/opt/push/config.json'
+    file: isLocal ? './.config.json' : '/usr/local/opt/push/config.json'
   });
 
   const config = exports = {};

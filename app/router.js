@@ -16,8 +16,10 @@ module.exports = app => {
   router.post('/auth', auth, controller.login.authorize);
   router.get('/test', auth, controller.home.test); // 需要校验token的请求，加入auth中间件
 
-  router.get('/user', controller.user.find);
-  router.get('/user/:id', controller.user.findById);
+  router.get('/user', auth, controller.user.find);
+  router.get('/user/:id', auth, controller.user.findById);
+
+  router.get('/bp/available', auth, controller.wechat.checkAvailableBP);
 
   // admin
   router.get('/admin/users', controller.user.list);
@@ -79,6 +81,8 @@ module.exports = app => {
   router.post('/work/data', auth, controller.workshopManage.update);
 
   router.get('/work/statistics', auth, controller.workshopManage.getCalcInfo);
+  router.post('/bp/login', auth, controller.wechat.loginAward);
+
 
   router.get('/admin/work_product/categories', controller.workProduct.listCategories);
   router.post('/admin/work_product/categories', controller.workProduct.createCategory);
