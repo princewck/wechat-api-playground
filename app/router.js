@@ -80,4 +80,14 @@ module.exports = app => {
 
   router.get('/work/statistics', auth, controller.workshopManage.getCalcInfo);
 
+  router.get('/admin/work_product/categories', controller.workProduct.listCategories);
+  router.post('/admin/work_product/categories', controller.workProduct.createCategory);
+  router.put('/admin/work_product/categories/:id', controller.workProduct.updateCategory);
+  router.delete('/admin/work_product/categories/:id', controller.workProduct.destroyCategory);
+  router.get('/admin/work_product/products', controller.workProduct.index);
+  router.post('/admin/work_product/products', controller.workProduct.create);
+  router.get('/admin/work_product/products/:id', controller.workProduct.show);
+  router.put('/admin/work_product/products/:id', controller.workProduct.update);
+  router.delete('/admin/work_product/products/:id', controller.workProduct.destroy);
+
 };
