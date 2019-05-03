@@ -74,8 +74,17 @@ class WorkProduct extends Service {
 
 
   async list() {
-    const threads = await this.app.mysql.select('work_product');
-    return threads;
+    const products = await this.app.mysql.select('work_product');
+    return products;
+  }
+
+  async listByCategory(cid) {
+    const products = await this.app.mysql.select('work_product', {
+      where: {
+        cid: cid,
+      }
+    });
+    return products;
   }
 
 

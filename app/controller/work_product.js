@@ -102,6 +102,19 @@ class WorkProductController extends Controller {
     }
   }
 
+  async listByCategories() {
+    const { id } = this.ctx.params;
+    try {
+      const list = await this.ctx.service.workProduct.listByCategory(id);
+      this.ctx.body = list;
+    } catch (e) {
+      this.ctx.status = 403;
+      this.ctx.body = {
+        message: e.message,
+      };
+    }
+  }
+
   async create() {
     const { 
       title = '',

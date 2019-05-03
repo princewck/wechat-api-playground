@@ -84,6 +84,9 @@ module.exports = app => {
   router.post('/bp/login', auth, controller.wechat.loginAward);
 
 
+  router.get('/work_product/categories', auth, controller.workProduct.listCategories);
+  router.get('/work_product/categories/:id/products', auth, controller.workProduct.listByCategories);
+
   router.get('/admin/work_product/categories', controller.workProduct.listCategories);
   router.post('/admin/work_product/categories', controller.workProduct.createCategory);
   router.put('/admin/work_product/categories/:id', controller.workProduct.updateCategory);
