@@ -5,12 +5,16 @@ const nconf = require('nconf');
 module.exports = appInfo => {
 
   const isLocal = appInfo.env === 'local';
+  const isProd = appInfo.env === 'prod';
+
+  console.log('isLocal', isLocal);
+  console.log('isProd', isProd);
 
   nconf
   .argv()
   .env()
   .file({
-    file: isLocal ? './.config.json' : '/usr/local/opt/push/config.json'
+    file: isLocal ? './.config.json' : isProd ? '/usr/local/opt/push/config.json': '/usr/local/opt/push_test/config.json'
   });
 
   const config = exports = {};
