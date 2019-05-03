@@ -25,9 +25,9 @@
     "node": ">=8.9.0"
   },
   "scripts": {
-    "start": "egg-scripts start --port 7070 --daemon --title=egg-server-wechat-push",
+    "start": "EGG_SERVER_ENV=prod egg-scripts start --port 7070 --daemon --title=egg-server-wechat-push",
     "stop": "egg-scripts stop --title=egg-server-wechat-push",
-    "deploy": "NODE_ENV=staging egg-scripts start --port 7001 --daemon --title=egg-server-wechat-push-test",
+    "deploy": "EGG_SERVER_ENV=stag egg-scripts start --port 7001 --daemon --title=egg-server-wechat-push-test",
     "stopTest": "egg-scripts stop --title=egg-server-wechat-push-test",
     "dev": "egg-bin dev --port 7001",
     "debug": "egg-bin debug",
