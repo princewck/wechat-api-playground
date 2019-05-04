@@ -86,6 +86,7 @@ module.exports = app => {
 
   router.get('/work_product/categories', auth, controller.workProduct.listCategories);
   router.get('/work_product/categories/:id/products', auth, controller.workProduct.listByCategories);
+  router.get('/work_product/:id', auth, controller.workProduct.show);
 
   router.get('/admin/work_product/categories', controller.workProduct.listCategories);
   router.post('/admin/work_product/categories', controller.workProduct.createCategory);
