@@ -86,6 +86,22 @@ module.exports = class WechatController extends Controller {
     }
   }
 
+  async vipInfo() {
+    try {
+      const bp = await this.ctx.service.bonusPoint.checkAvailableBP();
+      const days = await this.ctx.service.bonusPoint.loginDays();
+      this.ctx.body = {
+        bp,
+        days,
+      }
+    } catch (e) {
+      this.ctx.status = 403;
+      this.ctx.body = {
+        message: e.message,
+      }
+    }
+  }
+
 
 
 }

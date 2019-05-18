@@ -82,6 +82,7 @@ module.exports = app => {
 
   router.get('/work/statistics', auth, controller.workshopManage.getCalcInfo);
   router.post('/bp/login', auth, controller.wechat.loginAward);
+  router.get('/vip_info', auth, controller.wechat.vipInfo);
 
 
   router.get('/work_product/categories', auth, controller.workProduct.listCategories);
