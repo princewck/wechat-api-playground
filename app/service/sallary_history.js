@@ -14,7 +14,13 @@ class SallaryHistoryService extends Service {
         user_id: userId, 
         year,
       },
+      orders: [['month', 'desc']],
     });
+    for (let i = 0; i < list.length; i++) {
+      const item = list[i];
+      const info = await this.ctx.service.workshopManage.getCalcInfo(userId, item.start, item.end, item.calc_method);
+      item.info = info;
+    }
     return list;
   }
 
@@ -26,6 +32,7 @@ class SallaryHistoryService extends Service {
       console.error(e);
     }
     const exist = await this.find(userId, year, month);
+    const config = await this.ctx.service.workshopManage.getSetting(userId);
     if (exist) {
       this.app.mysql.update('sallary_history', {
         id: exist.id,
@@ -37,6 +44,7 @@ class SallaryHistoryService extends Service {
         comment,
         start,
         end,
+        calc_method: config.calc_method,
         updated_at: moment().format('YYYY-MM-DD HH:mm:ss'),
         created_at: exist.created_at,
       });
@@ -49,6 +57,7 @@ class SallaryHistoryService extends Service {
         comment,
         start, 
         end,
+        calc_method: config.calc_method,
         created_at: moment().format('YYYY-MM-DD HH:mm:ss'),        
       });
     }

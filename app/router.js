@@ -98,7 +98,7 @@ module.exports = app => {
   router.put('/admin/work_product/products/:id', controller.workProduct.update);
   router.delete('/admin/work_product/products/:id', controller.workProduct.destroy);
 
-  router.get('/sallary_histories', controller.sallaryHistory.wechatHistoryList);
-  router.get('/sallary_history', controller.sallaryHistory.wechatFindHistory);
-  router.post('/sallary_history', controller.sallaryHistory.wechatCreateSallaryHistory);
+  router.get('/sallary_histories', auth, controller.sallaryHistory.wechatHistoryList);
+  router.get('/sallary_history', auth, controller.sallaryHistory.wechatFindHistory);
+  router.post('/sallary_history', auth, controller.sallaryHistory.wechatCreateSallaryHistory);
 };

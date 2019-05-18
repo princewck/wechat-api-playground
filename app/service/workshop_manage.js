@@ -382,7 +382,7 @@ module.exports = class WorshopManageService extends Service {
   }
 
   // 获取一段时间内的工资计算结果
-  async getCalcInfo(userId, start, end) {
+  async getCalcInfo(userId, start, end, customCalcMethod) {
     const data = {
       primaryDays: 0,
       primaryHours: 0,
@@ -535,8 +535,9 @@ module.exports = class WorshopManageService extends Service {
       }
     }
     data.pieceInfo = pieceInfo;
+    const calcMethod = customCalcMethod || calc_method;
     // 汇总
-    switch (calc_method) {
+    switch (calcMethod) {
       case 'primary_with_extra':
         data.primarySallary = safeDigit(base_month_sallary) * durationMonths;
         data.primaryAccurate = false;
@@ -550,12 +551,12 @@ module.exports = class WorshopManageService extends Service {
 
     let totalSallary = safeDigit(data.nightSallary) + safeDigit(data.primarySallary);
 
-    if (calc_method && calc_method.includes('with_extra')) {
+    if (calcMethod && calcMethod.includes('with_extra')) {
       totalSallary += safeDigit(data.extraSallary);
     }
 
     // 计件
-    if (calc_method === 'by_count') {
+    if (calcMethod === 'by_count') {
       totalSallary += safeDigit(data.pieceSallary);
     }
     data.extraSallary = Number(data.extraSallary).toFixed(2);
