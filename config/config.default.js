@@ -7,9 +7,6 @@ module.exports = appInfo => {
   const isLocal = appInfo.env === 'local';
   const isProd = appInfo.env === 'prod';
 
-  console.log('isLocal', isLocal);
-  console.log('isProd', isProd);
-
   nconf
   .argv()
   .env()
