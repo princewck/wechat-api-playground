@@ -18,7 +18,7 @@ class BonusPointService extends Service {
       throw new Error('登陆奖励一天只能领取一次');
     }
     await this.app.mysql.insert('bonuspoint', { amount: 2, user_id: user.id, type: 'get', action: 'login', created_at: now, updated_at: now });
-    await this.app.mysql.query('update user set bp = bp + 2 where id = user.id');
+    await this.app.mysql.query('update user set bp = bp + 2 where id = ?', [user.id]);
   }
 
   async checkAvailableBP() {
