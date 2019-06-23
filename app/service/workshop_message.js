@@ -83,8 +83,8 @@ module.exports = class WorkshopMessageService extends Service {
           accessToken, user.open_id, templateIdNew, 'pages/home/index', 
           formId, 
           templateData, 
-          'keyword4.DATA', 
-          'workshop',
+          'keyword5.DATA', 
+          'workshop_new',
         );
       } catch (e) {
         this.ctx.logger.error(e);
