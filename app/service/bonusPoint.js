@@ -32,12 +32,19 @@ class BonusPointService extends Service {
 
   async loginDays() {
     const user = await this.ctx.currentUser();
-    const sql = 'select count(id) from bonuspoint where user_id = ? and action = \'login\'';
     const days = await this.app.mysql.count('bonuspoint', {
       user_id: user.id,
       action: 'login',
     });
     return days || 0;
+  }
+
+  async getLoginDays(userId) {
+    const days = await this.app.mysql.count('bonuspoint', {
+      user_id: userId,
+      action: 'login',
+    });
+    return days || 0;    
   }
 
 }

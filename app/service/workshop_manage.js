@@ -429,6 +429,9 @@ module.exports = class WorshopManageService extends Service {
         start.subtract(1, 'months');
       }
       end = start.clone().add(1, 'months').subtract(1, 'days');
+      if (month_start === 1) {
+        end = start.clone().endOf('month').format('YYYY-MM-DD');
+      }
     }
     const days = (moment(end) - moment(start))/(1000 * 3600 * 24);
     let durationMonths = Math.floor(days/30) + Math.floor((days%30+7)/30);
@@ -567,7 +570,6 @@ module.exports = class WorshopManageService extends Service {
     data.pieceSallary = Number(data.pieceSallary).toFixed(2);
     data.totalSallary = Number(totalSallary).toFixed(2);
     return data;
-
   }
 
   async getWorkDataByDay(userId, date) {
