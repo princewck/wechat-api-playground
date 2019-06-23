@@ -278,13 +278,14 @@ module.exports = class WorshopManageService extends Service {
       ...(duty_type ? {duty_type} : {}),
       ...(comment ? { comment } : {}),
     };
+    const settings = await this.getSetting(userId);
     if (record && record.id) {
       await this.app.mysql.update('work_data', {id: record.id, ...payload}, );
     } else {
       await this.app.mysql.insert('work_data', payload);
       record = await this.app.mysql.get('work_data', {user_id: userId, date: fmtDate});
     }
-    if (extras && extras.length) {
+    if (extras && Array.isArray(extras) && usingExtre(settings)) {
       const extra = extras[0];
       const extraPayload = {
         work_data_id: record.id,
@@ -307,9 +308,9 @@ module.exports = class WorshopManageService extends Service {
       }
     }
 
-    if (piece_info && piece_info.length) {
+    if (piece_info && Array.isArray(piece_info) && usingPiece(settings)) {
+      const conn = await this.app.mysql.beginTransaction();
       try {
-        const conn = await this.app.mysql.beginTransaction();
         await conn.delete('work_data_piece', {
           work_data_id: record.id,
         });
@@ -321,9 +322,12 @@ module.exports = class WorshopManageService extends Service {
             work_data_id: record.id,
           };
         });
-        await conn.insert('work_data_piece', rows);
-        await conn.commit();
+        if (rows.length) {
+          await conn.insert('work_data_piece', rows);
+          await conn.commit();
+        }
       } catch (e) {
+        console.error(e);
         await conn.rollback();
       }
     }
@@ -594,4 +598,13 @@ module.exports = class WorshopManageService extends Service {
 
 function safeDigit(num) {
   return isNaN(num) ? 0 : +num;
+}
+
+/** 使用计件的方式 */
+function usingPiece(settings) {
+  return settings && settings.calc_method === 'by_count';
+}
+
+function usingExtre(settings) {
+  return settings && settings.calc_method === 'hour_with_extra';
 }
