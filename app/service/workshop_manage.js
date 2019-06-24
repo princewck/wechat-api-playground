@@ -258,7 +258,6 @@ module.exports = class WorshopManageService extends Service {
 
   // 更新某天的数据
   async update(userId, date, data) {
-    console.log(userId, date, data);
     const fmtDate = moment(date).format('YYYY-MM-DD');
     let record = await this.app.mysql.get('work_data', {date: fmtDate, user_id: userId});
     const { 
@@ -280,8 +279,6 @@ module.exports = class WorshopManageService extends Service {
       ...(comment ? { comment } : {}),
     };
     const settings = await this.getSetting(userId);
-    console.log('settings', settings);
-    console.log('Array.isArray(extras)', Array.isArray(extras));
     if (record && record.id) {
       await this.app.mysql.update('work_data', {id: record.id, ...payload}, );
     } else {
