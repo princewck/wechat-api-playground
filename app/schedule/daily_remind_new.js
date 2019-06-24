@@ -12,7 +12,7 @@ class DailyRemind extends Subscription {
   static get schedule() {
     return {
       type: 'worker',
-      cron: '0 */2 * * * 1-6',
+      cron: '0 */12 * * * 1-6',
     };
   }
 
