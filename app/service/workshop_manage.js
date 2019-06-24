@@ -208,12 +208,12 @@ module.exports = class WorshopManageService extends Service {
     const setting = {
       user_id: userId,
       calc_method: 'primary_with_extra',
-      per_hour_sallary: 0,
-      base_month_sallary: 0,
+      per_hour_sallary: 10,
+      base_month_sallary: 1000,
       month_start: 1,
-      weekday_extra_price: 0,
-      weekend_extra_price: 0,
-      holiday_extra_price: 0,
+      weekday_extra_price: 20,
+      weekend_extra_price: 10,
+      holiday_extra_price: 10,
     }
     const pieceSetting = {
       user_id: userId,
@@ -258,6 +258,7 @@ module.exports = class WorshopManageService extends Service {
 
   // 更新某天的数据
   async update(userId, date, data) {
+    console.log(userId, date, data);
     const fmtDate = moment(date).format('YYYY-MM-DD');
     let record = await this.app.mysql.get('work_data', {date: fmtDate, user_id: userId});
     const { 
@@ -279,6 +280,8 @@ module.exports = class WorshopManageService extends Service {
       ...(comment ? { comment } : {}),
     };
     const settings = await this.getSetting(userId);
+    console.log('settings', settings);
+    console.log('Array.isArray(extras)', Array.isArray(extras));
     if (record && record.id) {
       await this.app.mysql.update('work_data', {id: record.id, ...payload}, );
     } else {
@@ -294,6 +297,7 @@ module.exports = class WorshopManageService extends Service {
         hours: extra.hours,
       };
       const exist = await this.app.mysql.get('work_data_extra', {work_data_id: record.id});
+      console.log('extraPayload', extraPayload);
       if (exist) {
         if (extraPayload.hours > 0) {
           await this.app.mysql.update('work_data_extra', {
@@ -608,5 +612,5 @@ function usingPiece(settings) {
 }
 
 function usingExtre(settings) {
-  return settings && settings.calc_method === 'hour_with_extra';
+  return settings && settings.calc_method.includes('with_extra');
 }
