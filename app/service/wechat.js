@@ -62,25 +62,25 @@ module.exports = class WechatService extends Service {
         app: appName,
         created_at: moment().format('YYYY-MM-DD HH:mm:ss'),
       });      
-      disposeFormId(form_id);
+      this.disposeFormId(form_id);
       console.log('模板消息发送成功！');
     } else if (errorcode == 40037) {
-      disposeFormId(form_id);
+      this.disposeFormId(form_id);
       throw new Error('template_id不正确！');
     } else if (errorcode == 41028) {
-      disposeFormId(form_id);
+      this.disposeFormId(form_id);
       throw new Error('form_id 不正确或者已经过期');
     } else if (errorcode == 41029) {
-      disposeFormId(form_id);
+      this.disposeFormId(form_id);
       throw new Error('form_id已经被使用');
     } else if (errorcode == 41030) {
-      disposeFormId(form_id);
+      this.disposeFormId(form_id);
       throw new Error('page 不正确');
     } else if (errorcode == 45009) {
-      disposeFormId(form_id);
+      this.disposeFormId(form_id);
       throw new Error('超过今日调用限额');
     } else {
-      disposeFormId(form_id);
+      this.disposeFormId(form_id);
       throw new Error(`发送模板消息失败，未知错误！[${errorcode}: ${errmsg}]`);
     }
   }
