@@ -61,21 +61,32 @@ module.exports = class WechatService extends Service {
         emphasis: emphasisKeyword,
         app: appName,
         created_at: moment().format('YYYY-MM-DD HH:mm:ss'),
-      });
-      await this.app.mysql.query('update form_ids set used = 1 where form_id = ?', [form_id]);
+      });      
+      disposeFormId(form_id);
+      console.log('模板消息发送成功！');
     } else if (errorcode == 40037) {
+      disposeFormId(form_id);
       throw new Error('template_id不正确！');
     } else if (errorcode == 41028) {
+      disposeFormId(form_id);
       throw new Error('form_id 不正确或者已经过期');
     } else if (errorcode == 41029) {
+      disposeFormId(form_id);
       throw new Error('form_id已经被使用');
     } else if (errorcode == 41030) {
+      disposeFormId(form_id);
       throw new Error('page 不正确');
     } else if (errorcode == 45009) {
+      disposeFormId(form_id);
       throw new Error('超过今日调用限额');
     } else {
+      disposeFormId(form_id);
       throw new Error(`发送模板消息失败，未知错误！[${errorcode}: ${errmsg}]`);
     }
+  }
+
+  async disposeFormId(form_id) {
+    await this.app.mysql.query('update form_ids set used = 1 where form_id = ?', [form_id]);
   }
 
   async recordFormId(openId, formId) {
