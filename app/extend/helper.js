@@ -1,4 +1,5 @@
 // app/extend/helper.js
+const moment = require('moment');
 module.exports = {
   randomStr(length = 5) {
     // this 是 helper 对象，在其中可以调用其他 helper 方法
@@ -18,5 +19,15 @@ module.exports = {
   },
   safeDigit(num) {
     return isNaN(num) ? 0 : +num;
+  },
+  async genOrderNumber() {
+    const suffix = Math.floor(Math.random()* 1e5);
+    const prefix = moment().format('YYYYMMDDHH');
+    const orderNumber = `${prefix}${suffix}`;
+    const exist = await this.app.mysql.get('orders', { order_number: orderNumber });
+    if (exist) {
+      return genOrderNumber();
+    }
+    return orderNumber;
   }
 };

@@ -102,4 +102,6 @@ module.exports = app => {
   router.get('/sallary_histories', auth, controller.sallaryHistory.wechatHistoryList);
   router.get('/sallary_history', auth, controller.sallaryHistory.wechatFindHistory);
   router.post('/sallary_history', auth, controller.sallaryHistory.wechatCreateSallaryHistory);
+
+  router.post('/order', auth, controller.order.create);
 };
