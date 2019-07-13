@@ -30,6 +30,22 @@ class BonusPointService extends Service {
     return user.bp || 0;
   }
 
+  // 登记邀请记录，发放邀请奖励
+  async inviteAward(inviterId) {
+    const inviter = await this.app.mysql.get('user', {id: inviterId});
+    if (!inviter) {
+      throw new Error('invalid inviter');
+    }
+    const now = moment().format('YYYY-MM-DD HH:mm:ss');
+    const invitedUser = await this.ctx.currentUser();
+    await this.app.mysql.insert('bonuspoint', { amount: 10, user_id: inviterId, type: 'get', action: 'login', created_at: now, updated_at: now, invited_user_id: invitedUser.id });
+    await this.app.mysql.query('update user set bp = bp + 10 where id = ?', [ inviterId ]);
+    return {
+      inviter: inviter.name,
+      award: 10,
+    };
+  }
+
   async loginDays() {
     const user = await this.ctx.currentUser();
     const days = await this.app.mysql.count('bonuspoint', {
