@@ -90,6 +90,54 @@ module.exports = class WechatController extends Controller {
     }
   }
 
+  async dailyInviteList() {
+    try {
+      const user = await this.ctx.currentUser();
+      const result = await this.ctx.service.bonusPoint.dailyInviteList(user.id);
+      this.ctx.body = result;
+    } catch (e) {
+      this.ctx.status = 403;
+      this.ctx.body = {
+        message: e.message,
+      };
+    }
+  }
+
+  //  添加到我的小程序奖励
+  async addMiniAward() {
+    try {
+      const result = await this.ctx.service.bonusPoint.addMiniAward();
+      this.ctx.body = {
+        ...result,
+        success: true,
+      };
+    } catch (e) {
+      this.ctx.status = 403;
+      this.ctx.body = {
+        status: 'fail',
+        amount: 0,
+        message: e.message,
+      };
+    }
+  }
+
+  // 添加到我的小程序
+  async addMiniState() {
+    try {
+      const result = await this.ctx.service.bonusPoint.addMiniState();
+      this.ctx.body = {
+        success: true,
+        added: result,
+      };
+    } catch (e) {
+      this.ctx.status = 403;
+      this.ctx.body = {
+        success: false,
+        message: e.message,
+      };
+    }
+  }
+
   async checkAvailableBP() {
     try {
       const bp = await this.ctx.service.bonusPoint.checkAvailableBP();
