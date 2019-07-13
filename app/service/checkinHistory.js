@@ -13,18 +13,13 @@ class CheckinHistoryService extends Service {
     const dstart = moment().startOf('day').format('YYYY-MM-DD HH:mm:ss');
     const dend = moment().endOf('day').format('YYYY-MM-DD HH:mm:ss');
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
+    const conn = await this.app.mysql.beginTransaction();
     try {
-      const conn = await this.app.mysql.beginTransaction();
-      const checkinDone = await this.app.mysql.get('checkin_history', {
-        where: {
-          user_id: user.id,
-          date: {
-            $between: [dstart, dend],
-          }
-        }
-      });
+      const existCount =  await this.app.mysql.query('select count(id) as c from checkin_history where user_id = ? and `date` between ? and ?', [user.id, dstart, dend]);
+      const checkinDone = existCount && existCount[0] && existCount[0].c > 0;
+      console.log('checkinDone', checkinDone,  existCount[0].c);
       if (checkinDone) {
-        throw new Error('今天您已经签到过了！');
+        throw new Error('今天您已经签到过了！明天再来吧');
       }
       await conn.insert('checkin_history', {
         user_id: user.id,
@@ -32,21 +27,24 @@ class CheckinHistoryService extends Service {
         status: 1,
         type: 1,
         created_at: now,
-        bp: 3,
+        bp: 5,
       });
-      const updateUserBp = `update user set bp = bp + 3 where id in (${ids.join(',')})`;
-      await conn.query(updateUserBp);
-      await conn.insert('bonuspoint', { amount: 3, user_id: user.id, type: 'get', action: 'single_checkin', created_at: now, updated_at: now });
+      const updateUserBp = `update user set bp = bp + 5 where id = ?`;
+      await conn.query(updateUserBp, [user.id]);
+      await conn.insert('bonuspoint', { amount: 5, user_id: user.id, type: 'get', action: 'single_checkin', created_at: now, updated_at: now });
 
       // 更新签到天数信息
-      const userInformation = await conn.select('user', {where: { id: user.id }});
+      const userInformation = await conn.select('user', { where: { id: user.id } });
       const { last_checkin, checkin_days = 0 } = userInformation;
       const yesterday_start = moment().subtract(1, 'days').startOf('day');
       const yesterday_end = moment().subtract(1, 'days').endOf('day');
-      const m  = moment(last_checkin);
+      const m = moment(last_checkin);
       if (last_checkin && m.isBefore(yesterday_end) && m.isAfter(yesterday_start)) {
         const updateCheckinDaysSql = 'update user set checkin_days = ?, last_checkin = ? where id = ?';
         await conn.query(updateCheckinDaysSql, [checkin_days + 1, now, user.id]);
+      } else {
+        const updateCheckinDaysSql = 'update user set checkin_days = 1, last_checkin = ? where id = ?';
+        await conn.query(updateCheckinDaysSql, [now, user.id]);
       }
       await conn.commit();
     } catch (e) {
@@ -55,7 +53,7 @@ class CheckinHistoryService extends Service {
     }
 
     return {
-      amount: 3,
+      amount: 5,
       date: now,
     }
   }
@@ -64,13 +62,8 @@ class CheckinHistoryService extends Service {
   async getWeeklySingleCheckinList(userId) {
     const wstart = moment().subtract(7, 'days').format('YYYY-MM-DD HH:mm:ss');
     const wend = moment().format('YYYY-MM-DD HH:mm:ss');
-    return await this.app.mysql.select('checkin_history', {
-      user_id: userId,
-      type: 1,
-      date: {
-        $between: [wstart, wend],
-      }
-    });
+    const sql = 'select * from checkin_history where user_id =? and type = 1 and date between ? and ? order by `date` desc';
+    return await this.app.mysql.query(sql, [userId, wstart, wend]);
   }
 
   /**
@@ -83,14 +76,11 @@ class CheckinHistoryService extends Service {
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
     const conn = await this.app.mysql.beginTransaction();
     try {
-      const exist = await conn.get('checkin_history', {
-        user_id: user.id,
-        date: { $between: [dstart, dend] },
-        type: 2,
-      });
+      let exist = await conn.query('select * from checkin_history where user_id = ? and type = 2 and `date` between ? and ?', [user.id, dstart, dend]);
       if (exist && exist.host === user.id) {
         throw new Error('每人一天只能发起一次组队');
       }
+      exist = exist && exist [0]
       if (!id) {
         await conn.insert('checkin_history', {
           user_id: user.id,
@@ -103,10 +93,8 @@ class CheckinHistoryService extends Service {
           count: 1,
           aim_count: 4,
         });
-        const result = await conn.get('checkin_history', {
-          date: { $between: [dstart, dend] },
-          host: user.id,
-        });
+        let result = await conn.query('select * from checkin_history where host = ? and `date` between ? and ?', [user.id, dstart, dend]);
+        result =  result && result[0];
         return result;
       }
       if (!exist) {
@@ -126,18 +114,14 @@ class CheckinHistoryService extends Service {
         count: 1,
         aim_count: 4,
       })
-      const teamItems = await conn.select('checkin_history', {
-        type: 2,
-        host: team.host,
-        date: { $between: [dstart, dend] },
-      });
+      const teamItems = await conn.quert('select * from checkin_history where type = 2 and host = ? and `date` between ? and ?', [team.host, dstart, dend]);
       if (teamItems.length >= 4) {
         const sql = 'update checkin_history set bp = ? where host = ? and date between ? and ?';
         await conn.query(sql, [10, team.host, dstart, dend]);
         const ids = teamItems.map(i => i.id);
         const updateUserBp = `update user set bp = bp + 10 where id in (${ids.join(',')})`;
         await conn.query(updateUserBp);
-        for (let i = 0; i < ids.length; i ++) {
+        for (let i = 0; i < ids.length; i++) {
           await conn.insert('bonuspoint', { amount: 10, user_id: ids[i], type: 'get', action: 'team_checkin', created_at: now, updated_at: now });
         }
       }
@@ -154,23 +138,14 @@ class CheckinHistoryService extends Service {
     const dstart = moment().startOf('day').format('YYYY-MM-DD HH:mm:ss');
     const dend = moment().endOf('day').format('YYYY-MM-DD HH:mm:ss');
     if (checkinHistoryId) {
-      item = await this.app.mysql.get('checkin_history', {id: checkinHistoryId});
+      item = await this.app.mysql.get('checkin_history', { id: checkinHistoryId });
     } else {
-      item = await this.app.mysql.get('checkin_history', {
-        host: userId,
-        date: {
-          $between: [dstart, dend],
-        }
-      });
-    }
-    return await this.app.mysql.select('checkin_history', {
-      user_id: userId,
-      type: 2,
-      host: item.host,
-      date: {
-        $between: [dstart, dend],
+      const list = await this.app.mysql.query('select * from checkin_history where host = ? and `date` between ? and ?', [userId, dstart, dend]);
+      if (list && list[0]) {
+        item = list[0];
       }
-    });
+    }
+    return await this.app.mysql.query('select * from checkin_hstory where type = 2 and host = ? and `date` between ? and ?', [item.host, dstart, dend]);
   }
 
 }

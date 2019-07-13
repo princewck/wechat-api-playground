@@ -86,6 +86,9 @@ module.exports = app => {
   router.post('/ivtd_by/:inviter', auth, controller.wechat.inviteAward);
   router.get('/ivtd', auth, controller.wechat.dailyInviteList);
 
+  router.get('/add_mini', auth, controller.wechat.addMiniState);
+  router.post('/add_mini', auth, controller.wechat.addMiniAward);
+
   // 签到
   router.post('/checkin/single', auth, controller.wechat.singleCheckin);
   router.get('/checkin/single', auth, controller.wechat.singleCheckinList);

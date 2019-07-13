@@ -81,6 +81,7 @@ module.exports = class WechatController extends Controller {
         success: true,
       };
     } catch (e) {
+      console.error(e);
       this.ctx.status = 403;
       this.ctx.body = {
         status: 'fail',
@@ -156,9 +157,13 @@ module.exports = class WechatController extends Controller {
     try {
       const bp = await this.ctx.service.bonusPoint.checkAvailableBP();
       const days = await this.ctx.service.bonusPoint.loginDays();
+      const user = await this.ctx.currentUser();
       this.ctx.body = {
         bp,
         days,
+        last_checkin: user.last_checkin || null,
+        checkin_days: user.checkin_days || 0,
+        id: user.id,
       }
     } catch (e) {
       this.ctx.status = 403;
@@ -178,7 +183,7 @@ module.exports = class WechatController extends Controller {
         success: true,
       };
     } catch (e) {
-      this.ctx.logger.log(e);
+      this.ctx.logger.info(e);
       this.ctx.status = 403;
       this.ctx.body = {
         message: e.message,
@@ -195,7 +200,7 @@ module.exports = class WechatController extends Controller {
         data: result,
       };
     } catch (e) {
-      this.ctx.logger.log(e);
+      this.ctx.logger.info(e);
       this.ctx.body = {
         success: false,
       }
@@ -231,7 +236,7 @@ module.exports = class WechatController extends Controller {
         success: true,
       };
     } catch (e) {
-      this.ctx.logger.log(e);
+      this.ctx.logger.info(e);
       this.ctx.status = 403;
       this.ctx.body = {
         success: false,

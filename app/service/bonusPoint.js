@@ -39,12 +39,12 @@ class BonusPointService extends Service {
       throw new Error('错误的请求');
     }
     const firstLogin = moment(new Date(+invitedUser.first_login));
-    const now = moment();
-    if (now.subtract(2, 'minutes').isAfter(firstLogin)) {
+    const current = moment();
+    if (current.subtract(2, 'minutes').isAfter(firstLogin)) {
       throw new Error('您不是新用户！');
     }
     if (invitedUser.inviter) {
-      this.ctx.logger.log('already invited by another user', invitedUser.id);
+      this.ctx.logger.info('already invited by another user', invitedUser.id);
       throw new Error('您已经被其他用户邀请过了。');
     }
     const dstart = moment().startOf('day').format('YYYY-MM-DD HH:mm:ss');
@@ -54,11 +54,12 @@ class BonusPointService extends Service {
     const sql = 'select count(id) from bonuspoint where user_id = ? and created_at between ? and ?';
     const invitedCount = await this.app.mysql.query(sql, [inviterId, dstart, dend]);
     if (invitedCount >= 5) {
-      throw new Error('每天最多邀请4个好友，明天再来哟！');
+      this.ctx.logger.info('每天最多邀请5个好友，邀请无效');
+      throw new Error('每天最多邀请5个好友，邀请无效');
     }
     await this.app.mysql.insert('bonuspoint', { amount: 10, user_id: inviterId, type: 'get', action: 'invite', created_at: now, updated_at: now, invited_user_id: invitedUser.id });
     await this.app.mysql.query('update user set bp = bp + 10 where id = ?', [ inviterId ]);
-    await this.app.mysql.query('update user set inviter = ? where id = ?', [inviterId, invitedUser]);
+    await this.app.mysql.query('update user set inviter = ? where id = ?', [inviterId, invitedUser.id]);
     return {
       inviter: inviter.name,
       award: 10,
@@ -69,7 +70,11 @@ class BonusPointService extends Service {
   async dailyInviteList(inviterId) {
     const dstart = moment().startOf('day').format('YYYY-MM-DD HH:mm:ss');
     const dend = moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'); 
-    const sql = 'select * from bonuspoint where user_id = ? and created_at between ? and ?';
+    const sql = `
+      select bp.*, u.nick, u.avatar from bonuspoint as bp
+      left join user as u on u.id = bp.invited_user_id
+      where bp.user_id = ? and action='invite' and created_at between ? and ?
+    `;
     const list = await this.app.mysql.query(sql, [inviterId, dstart, dend]);
     return list;
   }
