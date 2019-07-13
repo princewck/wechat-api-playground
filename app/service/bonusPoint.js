@@ -33,13 +33,23 @@ class BonusPointService extends Service {
   // 登记邀请记录，发放邀请奖励
   async inviteAward(inviterId) {
     const inviter = await this.app.mysql.get('user', {id: inviterId});
+    const invitedUser = await this.ctx.currentUser();
     if (!inviter) {
-      throw new Error('invalid inviter');
+      console.error('invalid inviter');
+      throw new Error('错误的请求');
+    }
+    const firstLogin = moment(new Date(+invitedUser.first_login));
+    const now = moment();
+    if (now.subtract(2, 'minutes').isAfter(firstLogin)) {
+      throw new Error('您不是新用户！');
+    }
+    if (invitedUser.inviter) {
+      this.ctx.logger.log('already invited by another user', invitedUser.id);
+      throw new Error('您已经被其他用户邀请过了。');
     }
     const dstart = moment().startOf('day').format('YYYY-MM-DD HH:mm:ss');
     const dend = moment().endOf('day').format('YYYY-MM-DD HH:mm:ss');    
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
-    const invitedUser = await this.ctx.currentUser();
     // 今天已经邀请了多少个？
     const sql = 'select count(id) from bonuspoint where user_id = ? and created_at between ? and ?';
     const invitedCount = await this.app.mysql.query(sql, [inviterId, dstart, dend]);
@@ -48,6 +58,7 @@ class BonusPointService extends Service {
     }
     await this.app.mysql.insert('bonuspoint', { amount: 10, user_id: inviterId, type: 'get', action: 'invite', created_at: now, updated_at: now, invited_user_id: invitedUser.id });
     await this.app.mysql.query('update user set bp = bp + 10 where id = ?', [ inviterId ]);
+    await this.app.mysql.query('update user set inviter = ? where id = ?', [inviterId, invitedUser]);
     return {
       inviter: inviter.name,
       award: 10,

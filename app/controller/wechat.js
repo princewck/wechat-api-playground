@@ -168,6 +168,76 @@ module.exports = class WechatController extends Controller {
     }
   }
 
+  /**
+   * 个人签到
+   */
+  async singleCheckin() {
+    try {
+      await this.ctx.service.checkinHistory.singleCheckin();
+      this.ctx.body = {
+        success: true,
+      };
+    } catch (e) {
+      this.ctx.logger.log(e);
+      this.ctx.status = 403;
+      this.ctx.body = {
+        message: e.message,
+      }
+    }
+  }
 
+  async singleCheckinList() {
+    try {
+      const user = await this.ctx.currentUser();
+      const result = await this.ctx.service.checkinHistory.getWeeklySingleCheckinList(user.id);
+      this.ctx.body = {
+        success: true,
+        data: result,
+      };
+    } catch (e) {
+      this.ctx.logger.log(e);
+      this.ctx.body = {
+        success: false,
+      }
+      this.ctx.status = 403;
+    }
+  }
+
+  /**
+   * 组队签到
+   */
+  async teamCheckin() {
+    try {
+      const { id } = this.ctx.request.body;
+      await this.ctx.service.checkinHistory.teamCheckin();
+      this.ctx.body = {
+        success: true,
+      };
+    } catch (e) {
+      this.ctx.body = {
+        success: false,
+        message: e.message,
+      };
+    }
+  }
+
+  async dailyTeamCheckinList() {
+    try {
+      const { id } = this.ctx.request.query;
+      const user = await this.ctx.currentUser();
+      const result = await this.ctx.service.checkinHistory.getDailyTeamCheckinList(id, user.id);
+      this.ctx.body = {
+        data: result,
+        success: true,
+      };
+    } catch (e) {
+      this.ctx.logger.log(e);
+      this.ctx.status = 403;
+      this.ctx.body = {
+        success: false,
+        message: e.message,
+      };
+    }
+  }
 
 }
