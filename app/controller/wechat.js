@@ -190,6 +190,21 @@ module.exports = class WechatController extends Controller {
     }
   }
 
+  async vipBpList() {
+    try {
+      const user = await this.ctx.currentUser();
+      const result = await this.ctx.service.bonusPoint.getRecentList(user.id);
+      this.ctx.body = {
+        data: result,
+      }
+    } catch (e) {
+      this.ctx.status = 403;
+      this.ctx.body = {
+        message: e.message,
+      }
+    }    
+  }
+
   /**
    * 个人签到
    */

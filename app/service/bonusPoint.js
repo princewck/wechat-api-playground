@@ -134,6 +134,13 @@ class BonusPointService extends Service {
     return days || 0;    
   }
 
+  // 获取最近50条积分记录
+  async getRecentList(userId) {
+    const sql = 'select * from bonuspoint where user_id = ? order by created_at DESC limit 0, 50';
+    const result = await this.app.mysql.query(sql, [userId]);
+    return result;
+  }
+
 }
 
 module.exports = BonusPointService;

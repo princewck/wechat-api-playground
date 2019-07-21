@@ -84,6 +84,7 @@ module.exports = app => {
   router.post('/bp/login', auth, controller.wechat.loginAward);
   router.post('/bp/ads', auth, controller.wechat.adsAward);
   router.get('/vip_info', auth, controller.wechat.vipInfo);
+  router.get('/vip_bp', auth, controller.wechat.vipBpList);
   router.post('/ivtd_by/:inviter', auth, controller.wechat.inviteAward);
   router.get('/ivtd', auth, controller.wechat.dailyInviteList);
 
