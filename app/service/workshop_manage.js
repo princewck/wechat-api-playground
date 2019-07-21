@@ -601,7 +601,7 @@ module.exports = class WorshopManageService extends Service {
 }
 
 function safeDigit(num) {
-  return isNaN(num) ? 0 : Number(num).toFixed(2).replace(/\.00$/, '');
+  return isNaN(num) ? 0 : +Number(num).toFixed(2);
 }
 
 /** 使用计件的方式 */
