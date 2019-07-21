@@ -468,7 +468,7 @@ module.exports = class WorshopManageService extends Service {
         } else {
           data.primaryPrice = primary_price;
         }
-        data.primarySallary += safeDigit(primary_hours) * data.primaryPrice;
+        data.primarySallary = safeDigit(data.primarySallary + primary_hours * data.primaryPrice);
       }
 
       // 计算加班信息
@@ -546,7 +546,7 @@ module.exports = class WorshopManageService extends Service {
     // 汇总
     switch (calcMethod) {
       case 'primary_with_extra':
-        data.primarySallary = safeDigit(base_month_sallary) * durationMonths;
+        data.primarySallary = safeDigit(base_month_sallary * durationMonths);
         data.primaryAccurate = false;
         break;
       case 'hour_with_extra':
@@ -601,7 +601,7 @@ module.exports = class WorshopManageService extends Service {
 }
 
 function safeDigit(num) {
-  return isNaN(num) ? 0 : +num;
+  return isNaN(num) ? 0 : Number(num).toFixed(2).replace(/\.00$/, '');
 }
 
 /** 使用计件的方式 */
