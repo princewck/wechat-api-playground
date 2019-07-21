@@ -21,6 +21,20 @@ class BonusPointService extends Service {
     await this.app.mysql.query('update user set bp = bp + 2 where id = ?', [user.id]);
   }
 
+  // 登陆奖励，一天一次
+  async adsAward() {
+    const user = await this.ctx.currentUser();
+    if (!user) {
+      this.logger.error('领取登陆奖励：用户不合法')
+      throw new Error('非法的请求');
+    }
+    const now = moment().format('YYYY-MM-DD HH:mm:ss');
+    const amount = 2 + Math.ceil(Math.random() * 5);
+    await this.app.mysql.insert('bonuspoint', { amount, user_id: user.id, type: 'get', action: 'ads', created_at: now, updated_at: now });
+    await this.app.mysql.query(`update user set bp = bp + ${ amount } where id = ?`, [user.id]);
+    return amount;
+  }
+
   async checkAvailableBP() {
     const user = await this.ctx.currentUser();
     if (!user) {
