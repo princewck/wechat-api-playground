@@ -582,7 +582,9 @@ module.exports = class WorshopManageService extends Service {
     const settings = await this.getSetting(userId);
     if (data) {
       if (settings.calc_method === 'by_count') {
-        const pieceData = await this.app.mysql.select('work_data_piece', {where: {work_data_id: data.id}});
+        // const pieceData = await this.app.mysql.select('work_data_piece', {where: {work_data_id: data.id}});
+        const sql = 'select wdp.*, wsp.name from work_data_piece as wdp left join work_setting_piece as wsp on wsp.id = wdp.count_setting_id where wdp.work_data_id = ?';        
+        const pieceData = await this.app.mysql.query(sql, [data.id]);
         data.piece_info = pieceData;
       } else {
         const extraData = await this.app.mysql.select('work_data_extra', {where: {work_data_id: data.id}});

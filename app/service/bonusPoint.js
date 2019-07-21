@@ -71,7 +71,7 @@ class BonusPointService extends Service {
       this.ctx.logger.info('每天最多邀请5个好友，邀请无效');
       throw new Error('每天最多邀请5个好友，邀请无效');
     }
-    await this.app.mysql.insert('bonuspoint', { amount: 10, user_id: inviterId, type: 'get', action: 'invite', created_at: now, updated_at: now, invited_user_id: invitedUser.id });
+    await this.app.mysql.insert('bonuspoint', { amount: 15, user_id: inviterId, type: 'get', action: 'invite', created_at: now, updated_at: now, invited_user_id: invitedUser.id });
     await this.app.mysql.query('update user set bp = bp + 10 where id = ?', [ inviterId ]);
     await this.app.mysql.query('update user set inviter = ? where id = ?', [inviterId, invitedUser.id]);
     return {
