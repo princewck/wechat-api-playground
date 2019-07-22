@@ -29,8 +29,8 @@ class BonusPointService extends Service {
       throw new Error('非法的请求');
     }
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
-    const start = moment().startOf('day');
-    const end = moment().endOf('day');
+    const start = moment().startOf('day').format('YYYY-MM-DD HH:mm:ss');
+    const end = moment().endOf('day').format('YYYY-MM-DD HH:mm:ss');
     const [{ c: existCount }] = await this.app.mysql.query('select count(id) as c from bonuspoint where user_id = ? and `action` = \'ads\' and  created_at between ? and ? ', [user.id, start, end]);
     const delta = existCount > 5 ? 3 : 8;
     const amount = 2 + Math.ceil(Math.random() * delta);
