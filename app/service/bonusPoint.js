@@ -31,6 +31,7 @@ class BonusPointService extends Service {
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
     const amount = 2 + Math.ceil(Math.random() * 5);
     await this.app.mysql.insert('bonuspoint', { amount, user_id: user.id, type: 'get', action: 'ads', created_at: now, updated_at: now });
+    await this.ctx.service.workshopMessage.adsAwardMessage(amount);
     await this.app.mysql.query(`update user set bp = bp + ${ amount } where id = ?`, [user.id]);
     return amount;
   }

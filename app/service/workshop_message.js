@@ -48,6 +48,38 @@ module.exports = class WorkshopMessageService extends Service {
     this.ctx.logger.info(`-----每日登录提醒:本次任务结束！`);
   }
 
+  async adsAwardMessage(amount) {
+    const _templateId = 'xy2FL8607os72s2bvkvQmf_0-_MhFjdZYR3TIsIb87A';
+    const config = this.config.wechat.workshop_new;
+    const { appid, appsecret } = config;
+    const accessToken = await this.ctx.service.wechat.getAccessToken(appid, appsecret);
+    const user = await this.ctx.currentUser();
+    const { bp, nick } = user;
+    const time = moment().format('MM-DD HH:mm:ss');
+    const formId = await this.ctx.service.wechat.getAvailableFormId(user.open_id);
+    const templateData = {
+      keyword1: {value: nick },
+      keyword2: {value: '工时助手福利发放'},
+      keyword3: {value: amount},
+      keyword4: {value: bp},
+      keyword5: {value: '看广告，免费抽积分'},
+      keyword6: {value: time},
+      keyword7: {value: '没有一次抽中50积分，不要紧，再接再励，邀请好友一起吧～'},
+    };  
+    try {
+      if (formId) {
+        await this.ctx.service.wechat.sendTemplateMessage(
+          accessToken, user.open_id, _templateId, 'pages/bp-shop/index', 
+          formId, 
+          templateData, 
+          'keyword3.DATA', 
+          'workshop_new',
+        );
+      }
+    } catch (e) {
+      this.ctx.logger.error(e);
+    }         
+  }
 
   async dailyRemindNew() {
     this.ctx.logger.info('-----新版工时记录：每日登录提醒:开始发送-----');
