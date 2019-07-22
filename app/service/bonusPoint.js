@@ -29,7 +29,11 @@ class BonusPointService extends Service {
       throw new Error('非法的请求');
     }
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
-    const amount = 2 + Math.ceil(Math.random() * 9);
+    const start = moment().startOf('day');
+    const end = moment().endOf('day');
+    const { c: existCount } = await this.app.mysql.query('select count(id) as c from bonuspoint where user_id = ? and `action` = \'ads\' and  created_at between ? and ? ', [user.id, start, end]);
+    const delta = existCount > 5 ? 3 : 8;
+    const amount = 2 + Math.ceil(Math.random() * delta);
     await this.app.mysql.insert('bonuspoint', { amount, user_id: user.id, type: 'get', action: 'ads', created_at: now, updated_at: now });
     await this.app.mysql.query(`update user set bp = bp + ${ amount } where id = ?`, [user.id]);
     await this.ctx.service.workshopMessage.adsAwardMessage(amount);
