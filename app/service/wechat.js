@@ -51,6 +51,12 @@ module.exports = class WechatService extends Service {
     });
     console.log(res);
     const { errcode: errorcode, errmsg } = res.data;
+    if (toUser == 'oG2Pc4trGJBE8xWYfW951o7_RK2k') {
+      this.ctx.logger.info('debug 发送模版消息');
+      this.ctx.logger.info('page', page);
+      this.ctx.logger.info('appName', appName);
+      this.ctx.logger.info('结果：', res.data);
+    }
     if (errorcode == 0) {
       await this.app.mysql.insert('message_history', {
         to_user: toUser,
