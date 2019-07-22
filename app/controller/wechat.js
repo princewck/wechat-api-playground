@@ -80,6 +80,7 @@ module.exports = class WechatController extends Controller {
         amount,
       }
     } catch (e) {
+      this.logger.error(e);
       this.ctx.status = 403;
       this.ctx.body = {
         status: 'fail',
