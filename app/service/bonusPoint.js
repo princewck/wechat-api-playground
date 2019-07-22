@@ -31,7 +31,7 @@ class BonusPointService extends Service {
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
     const start = moment().startOf('day');
     const end = moment().endOf('day');
-    const { c: existCount } = await this.app.mysql.query('select count(id) as c from bonuspoint where user_id = ? and `action` = \'ads\' and  created_at between ? and ? ', [user.id, start, end]);
+    const [{ c: existCount }] = await this.app.mysql.query('select count(id) as c from bonuspoint where user_id = ? and `action` = \'ads\' and  created_at between ? and ? ', [user.id, start, end]);
     const delta = existCount > 5 ? 3 : 8;
     const amount = 2 + Math.ceil(Math.random() * delta);
     await this.app.mysql.insert('bonuspoint', { amount, user_id: user.id, type: 'get', action: 'ads', created_at: now, updated_at: now });
