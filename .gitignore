@@ -11,3 +11,5 @@ run/
 .DS_Store
 *.sw*
 *.un~
+app/public/alimama_stat.json
+.cookies*
