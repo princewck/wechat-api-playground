@@ -30,6 +30,12 @@ module.exports = appInfo => {
 
   config.wechat = nconf.get('wechat');
 
+  config.alimama = {
+    appKey: nconf.get('alimama_app_key'),
+    appSecret: nconf.get('alimama_app_secret'),
+    adZoneId: nconf.get('alimama_ad_zone'),
+  };
+
   config.oss = nconf.get('oss');
 
   config.mysql = {

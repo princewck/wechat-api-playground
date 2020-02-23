@@ -13,3 +13,4 @@ run/
 *.un~
 app/public/alimama_stat.json
 .cookies*
+testtop.js

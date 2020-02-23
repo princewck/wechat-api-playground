@@ -27,6 +27,9 @@ module.exports = app => {
   router.post('/admin/login', controller.admin.login);
   router.post('/admin/logout', controller.admin.logout);
 
+  router.get('/admin/xpk/list', controller.alimama.getXPKList);
+  router.get('/admin/xpk/detail', controller.alimama.getXPKDetail);
+
   // wish admin
   router.resources(
     'wish_categories', 

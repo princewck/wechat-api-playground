@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const moment = require('moment');
 const { Service } = require('egg');
+const TopClient = require('node-taobao-topclient').default;
 
 
 function delay(t) {
@@ -69,6 +70,63 @@ class AlimamaService extends Service {
     }
   }
 
+  async getXPKList(page = 1, perPage = 20) {
+    const { appKey, appSecret } = this.config.alimama;
+    const client = new TopClient({
+      appkey: appKey,
+      appsecret: appSecret,
+      REST_URL: 'https://eco.taobao.com/router/rest',
+    });
+    const result = await client.execute('taobao.tbk.uatm.favorites.get', {
+      page_size: perPage,
+      page_no: page,
+      fields: 'favorites_title,favorites_id,type',
+    }, 'GET');
+    return result;
+  }
+
+  async getXPKDetail(favoritesId, page = 1, perPage = 20) {
+    const { appKey, appSecret, adZoneId } = this.config.alimama;
+    const client = new TopClient({
+      appkey: appKey,
+      appsecret: appSecret,
+      REST_URL: 'https://eco.taobao.com/router/rest',
+    });
+    const result = await client.execute('taobao.tbk.uatm.favorites.item.get', {
+      adzone_id: adZoneId,
+      favorites_id: favoritesId,
+      fields: [
+        'num_iid',
+        'title',
+        'pict_url',
+        'small_images',
+        'reserve_price', // 一口价
+        'zk_final_price', //折扣价格
+        'provcity', // 所在地
+        'item_url',
+        'click_url', // 淘客地址
+        'volume', // 30天销量
+        'tk_rate',// 收入比例 %
+        'zk_final_price_wap', //无线折扣价，即宝贝在无线上的实际售卖价格
+        'event_start_time',
+        'event_end_time',
+        'status', // 0 失效
+        'category',//类目
+        'coupon_click_url', // 优惠券连接
+        'coupon_start_time',// 优惠券开始时间
+        'coupon_end_time', // 优惠券结束时间
+        'coupon_info', // 优惠券面额,
+        'coupon_total_count',
+        'coupon_remain_count',
+      ].join(','),
+      page_no: page,
+      page_size: perPage,
+    }, 'GET');
+    return result;
+  }
+
+
+
   /** private */
   updateStateJson(hasLogin, message = '', qrcode) {
     console.log(hasLogin, message, qrcode);
@@ -85,6 +143,7 @@ class AlimamaService extends Service {
       JSON.stringify(data, null, 2),
     );
   }
+  
 }
 
 module.exports = AlimamaService;
