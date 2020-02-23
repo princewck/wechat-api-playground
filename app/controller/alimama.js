@@ -13,6 +13,17 @@ class AlimamaController extends Controller {
    const result = await this.service.alimama.getXPKDetail(favoritesId, page, per_page);
    this.ctx.body = result;
   }
+
+  async getCategories() {
+    const data = await this.service.alimama.getCategories();
+    this.ctx.body = data;
+  }
+
+  async getProductsByCategory() {
+    const { category, page } = this.ctx.query;
+    const data = await this.service.alimama.getProductsByCategory(category, page);
+    this.ctx.body = data;
+  }
 }
 
 module.exports = AlimamaController;

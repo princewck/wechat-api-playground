@@ -13,6 +13,7 @@ class DailyRemind extends Subscription {
     return {
       type: 'worker',
       cron: '0 */12 * * * 1-6',
+      env: ['prod']
     };
   }
 

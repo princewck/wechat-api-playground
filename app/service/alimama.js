@@ -6,8 +6,88 @@ const { Service } = require('egg');
 const TopClient = require('node-taobao-topclient').default;
 
 
+let updating = false;
+
 function delay(t) {
   return new Promise(resolve => setTimeout(resolve, t));
+}
+
+// 去掉选品库名字中的数字
+function prepareXPKName(name = '') {
+  return name.replace(/\d/g, '');
+}
+
+/**
+ * 
+ * @param {*} xpkName 选品库名称
+ * @param {*} item 
+ */
+function insertionSqlBuilder(xpkName, items) {
+  let sql = 'INSERT INTO tbk_products ';
+  const now = moment().format('YYYY-MM-DD HH:mm:ss');
+  sql += `(
+    num_iid,
+    category,
+    click_url,
+    event_end_time,
+    event_start_time,
+    item_url,
+    pict_url,
+    provcity,
+    reserve_price,
+    small_images,
+    \`status\`,
+    title,
+    tk_rate,
+    volume,
+    zk_final_price,
+    zk_final_price_wap,
+    coupon_click_url,
+    coupon_start_time,
+    coupon_end_time,
+    coupon_info,
+    coupon_total_count,
+    coupon_remain_count,
+    xpk_name,
+    description,
+    created_at,
+    updated_at
+  )`;
+  sql += ' VALUES ';
+  sql += items.map(item => `(
+    ${item.num_iid},
+    ${item.category || 0},
+    \'${item.click_url}\',
+    \'${item.event_end_time}\',
+    \'${item.event_start_time}\',
+    \'${item.item_url}\',
+    \'${item.pict_url}\',
+    \'${item.provcity}\',
+    \'${item.reserve_price}\',
+    \'${JSON.stringify(item.small_images)}\',
+    ${item.status || 0},
+    \'${item.title}\',
+    ${item.tk_rate || 0},
+    ${item.volume || 0},
+    ${item.zk_final_price || 0},
+    ${item.zk_final_price_wap || 0},
+    \'${item.coupon_click_url || ''}\',
+    \'${item.coupon_start_time || now}\',
+    \'${item.coupon_end_time || now}\',
+    \'${item.coupon_info || ''}\',
+    ${item.coupon_total_count || 0},
+    ${item.coupon_remain_count || 0},
+    \'${xpkName}\',
+    \'\',
+    \'${now}\',
+    \'${now}\'
+  )`).join(',');
+  sql += ' ON DUPLICATE KEY UPDATE ';
+  sql += ` \`status\`= values(status),`;
+  sql += ` coupon_remain_count=values(coupon_remain_count),`
+  sql += ` updated_at=values(updated_at)`;
+  sql = sql.replace(/undefined/g, '');
+  return sql;
 }
 
 class AlimamaService extends Service {
@@ -125,7 +205,80 @@ class AlimamaService extends Service {
     return result;
   }
 
+  // 获取数据库中的信息
+  async getCategories() {
+    const data = await this.app.mysql.select('tbk_xkp');
+    return data;
+  }
 
+  async getProductsByCategory(category, page = 1) {
+    const data = await this.app.mysql.select('tbk_products', {
+      where: { xpk_name: category, status: 1 },
+      offset: (page - 1) * 20,
+      limit: 20,
+    });
+    const total = await this.app.mysql.count('tbk_products', { xpk_name: category, status: 1 });
+    return {
+      products: data,
+      total_count: total,
+      current_page: page,
+      total_pages: Math.ceil(total / 20),
+    }
+  }
+
+  /** 更新选品库信息 */
+  async updateXPK() {
+    if (updating) {
+      this.logger.info('上次更新未完成，取消本次商品定时更新计划');
+      return;
+    }
+    updating = true;
+    try {
+      const { results } = await this.getXPKList(1, 100);
+      const xpkList = results.tbk_favorites; // 选品库列表
+      if (xpkList && xpkList.length > 0) {
+        while(xpkList.length > 0) {
+          const item = xpkList.shift();
+          console.log('开始处理：');
+          console.log(JSON.stringify(item, null, 2));
+          console.log('\n');
+          try {
+            let data = [];
+            const { favorites_id, favorites_title } = item;
+            const result = await this.getXPKDetail(favorites_id, 1, 100);
+            const { results: rt, total_results: count } = result;
+            const { uatm_tbk_item: items = [] } = rt;
+            console.log('favorites_id', favorites_id);
+            console.log('count', count);
+            data = data.concat(items);
+            if (count > 100) {
+              console.log('favorites_id', favorites_id);
+              const { results: rt2 } = await this.getXPKDetail(favorites_id, 2, 100);
+              const { uatm_tbk_item: items2 = [] } = rt2;
+              data = data.concat(items2);
+            }
+            console.log('data.length', data.length);
+            if (data.length === 0) {
+              continue;
+            }
+            const sql = insertionSqlBuilder(prepareXPKName(favorites_title), data);
+            this.logger.info(`----同步商品：批量插入数据 ${favorites_title} start----`);
+            this.logger.info(sql);
+            await this.app.mysql.query(sql);
+            this.logger.info(`----同步商品：批量插入数据 ${favorites_title} end----`);               
+          } catch (e) {
+            console.error('出错，跳过', e.message);
+            this.logger.error(e);            
+            continue;
+          }       
+        }
+      }
+    } catch (e) {
+      // console.error(e);
+      // this.logger.error(e);
+    }
+    updating = false;
+  }
 
   /** private */
   updateStateJson(hasLogin, message = '', qrcode) {

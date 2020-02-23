@@ -29,6 +29,8 @@ module.exports = app => {
 
   router.get('/admin/xpk/list', controller.alimama.getXPKList);
   router.get('/admin/xpk/detail', controller.alimama.getXPKDetail);
+  router.get('/admin/tbk/categories', controller.alimama.getCategories);
+  router.get('/admin/tbk/products', controller.alimama.getProductsByCategory);
 
   // wish admin
   router.resources(
