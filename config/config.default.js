@@ -38,6 +38,8 @@ module.exports = appInfo => {
 
   config.oss = nconf.get('oss');
 
+  config.tianApiKey = nconf.get('tianapi_key');
+
   config.mysql = {
     // 单数据库信息配置
     client: {

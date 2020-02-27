@@ -32,6 +32,13 @@ module.exports = app => {
   router.get('/admin/tbk/categories', controller.alimama.getCategories);
   router.get('/admin/tbk/products', controller.alimama.getProductsByCategory);
 
+  router.get('/admin/api/rest', controller.api.invoke);
+
+  router.get('/admin/selfmedia', controller.selfmedia.list);
+  router.post('/admin/selfmedia', controller.selfmedia.create);
+  router.get('/admin/selfmedia/:id', controller.selfmedia.getById);
+  router.put('/admin/selfmedia/:id', controller.selfmedia.update);
+
   // wish admin
   router.resources(
     'wish_categories', 
