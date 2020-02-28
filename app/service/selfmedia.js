@@ -40,7 +40,7 @@ class MediaService extends Service {
 
   async getById(id) {
     return await this.app.mysql.get('selfmedia_posts', {
-      id,
+      id: +id,
     });
   }
 
@@ -49,11 +49,18 @@ class MediaService extends Service {
       offset: (page - 1) * 20,
       limit: 20,
     });
+    data.forEach(item => {
+      try {
+        item.images = JSON.parse(item.images);
+      } catch (e) {
+        console.error(e);
+      }
+    });
     const total = await this.app.mysql.count('selfmedia_posts');
     return {
       list: data,
-      total_count: total,
-      current_page: page,
+      total_count: +total,
+      current_page: +page,
       total_pages: Math.ceil(total / 20),
     }
   }

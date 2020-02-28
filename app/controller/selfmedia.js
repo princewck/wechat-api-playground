@@ -28,8 +28,8 @@ class SelfMediaController extends Controller {
   }
 
   async getById() {
-    const { id } = this.ctx.query;
-    const detail = await this.service.getById(id);
+    const { id } = this.ctx.params;
+    const detail = await this.service.selfmedia.getById(id);
     this.ctx.body = detail;
   }
 
