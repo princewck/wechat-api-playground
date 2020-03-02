@@ -38,6 +38,13 @@ module.exports = app => {
   router.post('/admin/selfmedia', controller.selfmedia.create);
   router.get('/admin/selfmedia/:id', controller.selfmedia.getById);
   router.put('/admin/selfmedia/:id', controller.selfmedia.update);
+  router.delete('/admin/selfmedia/:id', controller.selfmedia.remove);
+
+  router.post('/admim/selfmedia_account', controller.selfmediaAccount.create);
+  router.get('/admin/selfmedia_accounts', controller.selfmediaAccount.list);
+  router.delete('/admin/selfmedia_account/:id', controller.selfmediaAccount.remove);
+  router.put('/admin/selfmedia_accounts/:id', controller.selfmediaAccount.update);
+  router.get('/admin/selfmedia_account/:id', controller.selfmediaAccount.getById);
 
   // wish admin
   router.resources(

@@ -4,7 +4,7 @@ const cheerio = require('cheerio');
 class MediaService extends Service {
 
   async create(data) {
-    const { title, content = '', article_type } = data;
+    const { title, content = '', article_type, expires_at } = data;
     const $ = cheerio.load(content);
     let videoUrl = null;
     const images = [];
@@ -16,12 +16,12 @@ class MediaService extends Service {
     });
     await this.app.mysql.insert('selfmedia_posts', {
       title, content, article_type, video_url: videoUrl,
-      images: JSON.stringify(images),
+      images: JSON.stringify(images), expires_at,
     });
   }
 
   async update(id, data) {
-    const { title, content = '', article_type } = data;
+    const { title, content = '', article_type, expires_at } = data;
     const $ = cheerio.load(content);
     let videoUrl = null;
     const images = [];
@@ -35,11 +35,18 @@ class MediaService extends Service {
       id,
       title, content, article_type, video_url: videoUrl,
       images: JSON.stringify(images),
+      expires_at
     });
   }  
 
   async getById(id) {
     return await this.app.mysql.get('selfmedia_posts', {
+      id: +id,
+    });
+  }
+
+  async remove(id) {
+    return await this.app.mysql.delete('selfmedia_posts', {
       id: +id,
     });
   }
