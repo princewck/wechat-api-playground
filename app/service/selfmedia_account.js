@@ -32,13 +32,14 @@ class SelfmediaAccounts extends Service {
   async list(page = 1) {
     const result = await this.app.mysql.select('selfmedia_accounts', {
       offset: (page - 1) * 20,
-      limit: 20,      
+      limit: 20,
+      columns: ['id', 'username', 'phone_number', 'type', 'created_at'],
     });
     const total = await this.app.mysql.count('selfmedia_accounts', {});
     return {
       accounts: result,
       pagination: {
-        current_page: page,
+        current_page: +page,
         total_pages: Math.ceil(total / 20),
         total_count: total,
       }

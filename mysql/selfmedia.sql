@@ -21,3 +21,6 @@ CREATE TABLE `selfmedia_accounts`  (
   `status` tinyint(1) UNSIGNED NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`)
 );
+
+ALTER TABLE `push_test`.`selfmedia_accounts` 
+MODIFY COLUMN `id` int(4) UNSIGNED NOT NULL AUTO_INCREMENT FIRST;
