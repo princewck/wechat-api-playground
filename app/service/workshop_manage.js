@@ -569,7 +569,11 @@ module.exports = class WorshopManageService extends Service {
     this.logger.info('+++++++++= keys to del: +++++++++++++++');
     this.logger.info(keys);
     for (let i = 0; i < keys.length; i++) {
-      await redis.del(keys[i].replace('wechat_api_playgroud:', ''));
+      try {
+        await redis.del(keys[i].replace('wechat_api_playgroud:', ''));
+      } catch (e) {
+        this.logger.error(e);
+      }
     }
   }
 }
