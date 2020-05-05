@@ -139,7 +139,6 @@ module.exports = class WorshopManageService extends Service {
     let record = await this.app.mysql.get('work_data', {date: fmtDate, user_id: userId});
     const redis = this.app.getRedisClient();
     const key = `${userId}:${DATA_BY_DAY}:${fmtDate}`;
-    await this.flushAllByPrefix(userId);
     const { 
       primary_hours, 
       primary_price, 
@@ -212,6 +211,7 @@ module.exports = class WorshopManageService extends Service {
       }
     }
     await redis.del(key);
+    await this.flushAllByPrefix(userId);
   }
 
   async getWorkData(userId, start, end, nocache) {
@@ -280,10 +280,11 @@ module.exports = class WorshopManageService extends Service {
     const fmt = 'YYYY-MM-DD';
     for (let i = 0; i < ids.length; i++) {
       const id = ids[i];
+      const m = now.clone(); 
       for (let j = 0; j < 3; j++) {
-        now.subtract(j, 'months');
-        const end = now.endOf('month').format(fmt);
-        const start = now.startOf('month').format(fmt);
+        m.subtract(j, 'months');
+        const end = m.endOf('month').format(fmt);
+        const start = m.startOf('month').format(fmt);
         promises.push(this.getWorkData(id, start, end, true));
       }
     }
@@ -495,10 +496,11 @@ module.exports = class WorshopManageService extends Service {
     const fmt = 'YYYY-MM-DD';
     for (let i = 0; i < ids.length; i++) {
       const id = ids[i];
+      const m = now.clone();
       for (let j = 0; j < 3; j++) {
-        now.subtract(j, 'months');
-        const end = now.endOf('month').format(fmt);
-        const start = now.startOf('month').format(fmt);
+        m.subtract(j, 'months');
+        const end = m.endOf('month').format(fmt);
+        const start = m.startOf('month').format(fmt);
         promises.push(this.getCalcInfo(id, start, end, undefined, true));
       }
     }  
