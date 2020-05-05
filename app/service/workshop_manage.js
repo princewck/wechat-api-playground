@@ -7,7 +7,7 @@ const { SETTING_BY_ID, DATA_BY_DAY, CALC_INFO, DATA_BY_DURATION } = constants.WO
 module.exports = class WorshopManageService extends Service {
 
   // 获取设置
-  async getSetting(userId) {
+  async getSetting(userId, nocache) {
     const setting = await this.app.mysql.get('work_setting', { user_id: userId });
     if (!setting) {
       this.config.logger.info(`[getSetting]: ${userId}的配置不存在, 创建一份默认的`);
@@ -17,7 +17,7 @@ module.exports = class WorshopManageService extends Service {
     const redis = this.app.getRedisClient();
     const key = `${userId}:${SETTING_BY_ID}`;
     const cache = await redis.get(key);
-    if (cache) {
+    if (cache && !nocache) {
       return cache;
     }
     const pieceSetting = await this.app.mysql.select('work_setting_piece', { where: { user_id: userId, status: 1 } });
@@ -47,7 +47,6 @@ module.exports = class WorshopManageService extends Service {
   }
 
   async updateSetting(userId, data) {
-    const redis = this.app.getRedisClient();
     const {
       calc_method,
       per_hour_sallary,
@@ -98,6 +97,17 @@ module.exports = class WorshopManageService extends Service {
       this.logger.error(e);
       await conn.rollback();
       throw new Error(e);
+    }
+  }
+
+  /** 更新活跃用户的缓存 **/
+  async cacheSettings(ids) {
+    const promises = ids.map(id => this.getSetting(id, true));
+    try {
+      await Promise.all(promises);
+      this.logger.info('cache settings successed.');
+    } catch (e) {
+      this.logger.error(e);
     }
   }
 
@@ -204,7 +214,7 @@ module.exports = class WorshopManageService extends Service {
     await redis.del(key);
   }
 
-  async getWorkData(userId, start, end) {
+  async getWorkData(userId, start, end, nocache) {
     if (!start) {
       start = moment().startOf('month').format('YYYY-MM-DD');
     }
@@ -215,7 +225,7 @@ module.exports = class WorshopManageService extends Service {
     const cacheKey = `${userId}:${DATA_BY_DURATION}:${start}:${end}${isSingleMonth(start, end) ? ':monthly' : ''}`;
     const redis = this.app.getRedisClient();
     const cache = await redis.get(cacheKey);
-    if (cache) {
+    if (cache && !nocache) {
       return cache;
     }
 
@@ -264,8 +274,29 @@ module.exports = class WorshopManageService extends Service {
     return result;
   }
 
+  async cacheWorkData(ids) {
+    const promises = [];
+    const now = moment();
+    const fmt = 'YYYY-MM-DD';
+    for (let i = 0; i < ids.length; i++) {
+      const id = ids[i];
+      for (let j = 0; j < 3; j++) {
+        now.subtract(j, 'months');
+        const end = now.endOf('month').format(fmt);
+        const start = now.startOf('month').format(fmt);
+        promises.push(this.getWorkData(id, start, end, true));
+      }
+    }
+    try {
+      await Promise.all(promises);
+      this.logger.info('cache work data successed.');
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
   // 获取一段时间内的工资计算结果
-  async getCalcInfo(userId, start, end, customCalcMethod = '') {
+  async getCalcInfo(userId, start, end, customCalcMethod = '', nocache) {
     const data = {
       primaryDays: 0,
       primaryHours: 0,
@@ -315,7 +346,7 @@ module.exports = class WorshopManageService extends Service {
     const key = `${userId}:${CALC_INFO}:${start}:${end}${customCalcMethod}`;
     const redis = this.app.getRedisClient();
     const cache = await redis.get(key);
-    if (cache) {
+    if (cache && !nocache) {
       return cache;
     }
     const days = (moment(end) - moment(start))/(1000 * 3600 * 24);
@@ -458,6 +489,27 @@ module.exports = class WorshopManageService extends Service {
     return data;
   }
 
+  async cacheStatistics(ids) {
+    const promises = [];
+    const now = moment();
+    const fmt = 'YYYY-MM-DD';
+    for (let i = 0; i < ids.length; i++) {
+      const id = ids[i];
+      for (let j = 0; j < 3; j++) {
+        now.subtract(j, 'months');
+        const end = now.endOf('month').format(fmt);
+        const start = now.startOf('month').format(fmt);
+        promises.push(this.getCalcInfo(id, start, end, undefined, true));
+      }
+    }  
+    try {
+      await Promise.all(promises);
+      this.logger.info('cache statistics data successed.');
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+ 
   async getWorkDataByDay(userId, date) {
     if (!date) {
       date = moment().format('YYYY-MM-DD');

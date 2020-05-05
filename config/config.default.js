@@ -66,7 +66,7 @@ module.exports = appInfo => {
 
   config.redis = {
     prefix: 'wechat_api_playgroud:',
-    ttl: 120,    
+    ttl: 300,    
     client: {
       port: 6379,
       host: '127.0.0.1',

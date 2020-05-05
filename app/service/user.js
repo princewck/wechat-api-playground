@@ -36,4 +36,12 @@ module.exports = class UserService extends Service {
       list,
     }
   }
+
+  async listActiveUsers(app, duration = 7) {
+    const lastLoginTimestamp = Date.now() - duration * 24 * 3600 * 1000;
+    const list = await this.app.mysql.query('select id from user where app_name = ? and last_login > ?', [
+      app, lastLoginTimestamp,
+    ]);
+    return list;
+  }
 }
