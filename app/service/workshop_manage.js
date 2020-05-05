@@ -282,7 +282,7 @@ module.exports = class WorshopManageService extends Service {
       const id = ids[i];
       const m = now.clone(); 
       for (let j = 0; j < 3; j++) {
-        m.subtract(j, 'months');
+        m.subtract(1, 'months');
         const end = m.endOf('month').format(fmt);
         const start = m.startOf('month').format(fmt);
         promises.push(this.getWorkData(id, start, end, true));
@@ -498,7 +498,7 @@ module.exports = class WorshopManageService extends Service {
       const id = ids[i];
       const m = now.clone();
       for (let j = 0; j < 3; j++) {
-        m.subtract(j, 'months');
+        m.subtract(1, 'months');
         const end = m.endOf('month').format(fmt);
         const start = m.startOf('month').format(fmt);
         promises.push(this.getCalcInfo(id, start, end, undefined, true));
@@ -566,6 +566,8 @@ module.exports = class WorshopManageService extends Service {
   async flushAllByPrefix(prefix) {
     const redis = this.app.getRedisClient();
     const keys = await redis.keys(`${prefix}*`);
+    this.logger.info('+++++++++= keys to del: +++++++++++++++');
+    this.logger.info(keys);
     for (let i = 0; i < keys.length; i++) {
       await redis.del(keys[i].replace('wechat_api_playgroud:', ''));
     }
