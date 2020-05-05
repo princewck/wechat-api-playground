@@ -10,7 +10,7 @@ module.exports = class WorshopManageService extends Service {
   async getSetting(userId, nocache) {
     const setting = await this.app.mysql.get('work_setting', { user_id: userId });
     if (!setting) {
-      this.config.logger.info(`[getSetting]: ${userId}的配置不存在, 创建一份默认的`);
+      this.logger.info(`[getSetting]: ${userId}的配置不存在, 创建一份默认的`);
       await this.createDefaultSetting(userId);
       return await this.getSetting(userId);
     }
