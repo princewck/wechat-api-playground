@@ -11,7 +11,7 @@ class UpdateCache extends Subscription {
   }
 
   async subscribe () {
-    const users = await this.service.user.listActiveUsers('workshop_new', 3);
+    const users = await this.service.user.listActiveUsers('workshop_new', 2);
     const ids = users.map(i => i.id);
     if (!ids.length) return;
     await this.ctx.service.workshopManage.cacheSettings(ids);
