@@ -565,7 +565,12 @@ module.exports = class WorshopManageService extends Service {
   }
   async flushAllByPrefix(prefix) {
     const redis = this.app.getRedisClient();
-    const keys = await redis.keys(`${prefix}*`);
+    let keys;
+    try {
+      keys = await redis.keys(`${prefix}*`);
+    } catch (e) {
+      keys = [];
+    }
     this.logger.info('+++++++++= keys to del: +++++++++++++++');
     this.logger.info(keys);
     for (let i = 0; i < keys.length; i++) {
