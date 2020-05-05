@@ -92,7 +92,7 @@ module.exports = class WorshopManageService extends Service {
         }
       }
       await conn.commit();
-      await this.flushAllByPrefix(`${userId}*`);
+      await this.flushAllByPrefix(userId);
     } catch (e) {
       this.logger.error(e);
       await conn.rollback();
@@ -211,7 +211,7 @@ module.exports = class WorshopManageService extends Service {
       }
     }
     await redis.del(key);
-    await this.flushAllByPrefix(`${userId}*`);
+    await this.flushAllByPrefix(userId);
   }
 
   async getWorkData(userId, start, end, nocache) {

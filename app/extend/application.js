@@ -79,6 +79,7 @@ module.exports = {
             if (error) {
               return reject(error);
             }
+            this.logger.info('reply', reply);
             resolve(reply[1]);
           })
         });              
