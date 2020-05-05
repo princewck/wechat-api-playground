@@ -1,130 +1,24 @@
 const { Service } = require('egg');
 const moment = require('moment');
+const constants = require('../constants');
+
+const { SETTING_BY_ID, DATA_BY_DAY, CALC_INFO, DATA_BY_DURATION } = constants.WORK;
 
 module.exports = class WorshopManageService extends Service {
-
-  async setSynced(userId) {
-    await this.app.mysql.insert('work_sync_stat', {user_id: userId});
-  }
-
-  async getSyncStat(userId) {
-    return await this.app.mysql.get('work_sync_stat', {user_id: userId});
-  }
-
-  // 向前兼容数据
-  async syncStorageData(userId, data) {
-    console.log(userId, data);
-    let countSetting = null;
-    for (let key in data) {
-      const row = data[key];
-      const d = moment(key);
-      const valid = d.isValid();
-      const date = d.format('YYYY-MM-DD');
-      const old = await this.app.mysql.get('work_data', { date });
-      if (old) {
-        console.log(old);
-        console.log('data in ', date, ' already exist, skipping...');
-        continue;
-      }
-      // 同步基本信息
-      if (valid) {
-        const primaryPayload = {
-          date,
-          primary_hours: safeDigit(row.primary),
-          primary_price: safeDigit(row.primaryPrice),
-          absent: 0,
-          duty_type: row.night ? 'night' : null,
-          comment: '',
-          user_id: userId,
-        };
-
-        const result = await this.app.mysql.insert('work_data', primaryPayload);
-        if (result.affectedRows !== 1) {
-          this.logger.error('work_data insert error');
-        }
-
-        const record = await this.app.mysql.get('work_data', { date });
-        console.log('record inserted', record);
-        // 获取刚才插入的id
-        const workDataId = record.id;
-
-        // 同步加班信息
-        let extras = row.extras;
-        if (!(extras instanceof Array)) {
-          extras = [];
-        }
-
-        for (let i = 0; i < extras.length; i++) {
-          const extra = extras[i];
-          const extraPayload = {
-            work_data_id: workDataId,
-            type: extra.type,
-            hours: extra.value,
-            price: extra.price,
-          }
-          await this.app.mysql.insert('work_data_extra', extraPayload);
-        }
-
-        // 同步计件信息
-        if (row.count > 0) {
-          if (!countSetting) {
-            countSetting = await this.app.mysql.get('work_setting_piece', {
-              user_id: userId,
-            });
-          }
-          const piecePayload = {
-            // 必须保证settings先同步完成才有这个id
-            count_setting_id: countSetting && countSetting.id || null,
-            count: data.count,
-            price: safeDigit(data.piecePrice),
-          };
-          await this.app.mysql.insert('work_data_piece', piecePayload);
-        }
-      }
-    }
-  }
-
-  // 向前兼容旧版设置
-  async syncStorageSetting(userId, data) {
-    const extra = data.extraCategories || {};
-    const conn = await this.app.mysql.beginTransaction();
-    const setting = {
-      user_id: userId,
-      calc_method: data.calcMethod || 'primary_with_extra',
-      per_hour_sallary: this.ctx.helper.safeDigit(data.sallaryPerHour),
-      base_month_sallary: this.ctx.helper.safeDigit(data.baseSallary),
-      month_start: data.monthStart || 1,
-      weekday_extra_price: safeDigit(extra.weekday),
-      weekend_extra_price: safeDigit(extra.weekend),
-      holiday_extra_price: safeDigit(extra.holiday),
-    }
-    const pieceSetting = {
-      user_id: userId,
-      name: '计件类型1',
-      status: 1,
-      price: data.pieceSallary,
-    };
-    const settingExist = await this.app.mysql.get('work_setting', {user_id: userId});
-    if (!settingExist) {
-      await conn.insert('work_setting', setting);
-      this.ctx.logger.info(`work_setting of user id:${userId} already exists`);
-    }
-    const pieceSettingExist = await this.app.mysql.get('work_setting_piece', {user_id: userId});
-    if (!pieceSettingExist) {
-      await conn.insert('work_setting_piece', pieceSetting);
-      this.ctx.logger.info('work_setting_piece already exists');
-    }
-    await conn.commit();
-  }
-
 
   // 获取设置
   async getSetting(userId) {
     const setting = await this.app.mysql.get('work_setting', { user_id: userId });
     if (!setting) {
-      console.log('配置不存在，先来创建一份默认的');
+      this.config.logger.info(`[getSetting]: ${userId}的配置不存在, 创建一份默认的`);
       await this.createDefaultSetting(userId);
       return await this.getSetting(userId);
+    }
+    const redis = this.app.getRedisClient();
+    const key = `${userId}:${SETTING_BY_ID}`;
+    const cache = await redis.get(key);
+    if (cache) {
+      return cache;
     }
     const pieceSetting = await this.app.mysql.select('work_setting_piece', { where: { user_id: userId, status: 1 } });
     const {
@@ -137,7 +31,7 @@ module.exports = class WorshopManageService extends Service {
       per_hour_sallary = 0,
       month_start = 1,
     } = setting;
-    return {
+    const result = {
       calc_method,
       weekday_extra_price,
       weekend_extra_price,
@@ -148,9 +42,12 @@ module.exports = class WorshopManageService extends Service {
       month_start,
       piece_info: pieceSetting,
     };
+    await redis.set(key, result);
+    return result;
   }
 
   async updateSetting(userId, data) {
+    const redis = this.app.getRedisClient();
     const {
       calc_method,
       per_hour_sallary,
@@ -196,6 +93,7 @@ module.exports = class WorshopManageService extends Service {
         }
       }
       await conn.commit();
+      await this.flushAllByPrefix(userId);
     } catch (e) {
       this.logger.error(e);
       await conn.rollback();
@@ -225,41 +123,13 @@ module.exports = class WorshopManageService extends Service {
     await this.app.mysql.insert('work_setting_piece', pieceSetting);
   }
 
-  // // 获取一段时间的数据 ????
-  // async getData(userId, start, end) {
-  //   const settings = await this.app.mysql.select('work_data', {
-  //     where: {
-  //       date: {
-  //         $between: [start, end],
-  //       },
-  //       user_id: userId,
-  //     }
-  //   });
-  //   for (let i = 0; i < settings.length; i++) {
-  //     const calcMethod = setting.calc_method || '';
-  //     if (calcMethod.includes('extra')) {
-  //       const setting = settings[i];
-  //       const extra = await this.app.mysql.get('work_data_extra', {
-  //         work_data_id: setting.id
-  //       });
-  //       settings[i].extras = [extra];
-  //     }
-  //     if (calcMethod === 'by_count') {
-  //       const pieceInfo = await this.app.mysql.select('work_data_piece', {
-  //         where: {
-  //           work_data_id: setting.id
-  //         }
-  //       });
-  //       settings[i].piece_info = pieceInfo;
-  //     }
-  //   }
-  //   return settings;
-  // }
-
   // 更新某天的数据
   async update(userId, date, data) {
     const fmtDate = moment(date).format('YYYY-MM-DD');
     let record = await this.app.mysql.get('work_data', {date: fmtDate, user_id: userId});
+    const redis = this.app.getRedisClient();
+    const key = `${userId}:${DATA_BY_DAY}:${fmtDate}`;
+    await this.flushAllByPrefix(userId);
     const { 
       primary_hours, 
       primary_price, 
@@ -331,16 +201,24 @@ module.exports = class WorshopManageService extends Service {
         await conn.rollback();
       }
     }
-
+    await redis.del(key);
   }
 
   async getWorkData(userId, start, end) {
     if (!start) {
-      start = moment().startOf('month').format('YYYY-NN-DD');
+      start = moment().startOf('month').format('YYYY-MM-DD');
     }
     if (!end) {
       end = moment().endOf('month').format('YYYY-MM-DD');
     }
+
+    const cacheKey = `${userId}:${DATA_BY_DURATION}:${start}:${end}${isSingleMonth(start, end) ? ':monthly' : ''}`;
+    const redis = this.app.getRedisClient();
+    const cache = await redis.get(cacheKey);
+    if (cache) {
+      return cache;
+    }
+
     const setting = await this.getSetting(userId);
     const pieceSettings = setting.piece_info || [];
     const pieceSettingMap = pieceSettings.reduce((m, item) => {
@@ -382,11 +260,12 @@ module.exports = class WorshopManageService extends Service {
       map[moment(item.date).format('YYYY-MM-DD')] = item;
       return map;
     }, {});
+    await redis.set(cacheKey, result);
     return result;
   }
 
   // 获取一段时间内的工资计算结果
-  async getCalcInfo(userId, start, end, customCalcMethod) {
+  async getCalcInfo(userId, start, end, customCalcMethod = '') {
     const data = {
       primaryDays: 0,
       primaryHours: 0,
@@ -432,6 +311,12 @@ module.exports = class WorshopManageService extends Service {
       if (month_start === 1) {
         end = start.clone().endOf('month').format('YYYY-MM-DD');
       }
+    }
+    const key = `${userId}:${CALC_INFO}:${start}:${end}${customCalcMethod}`;
+    const redis = this.app.getRedisClient();
+    const cache = await redis.get(key);
+    if (cache) {
+      return cache;
     }
     const days = (moment(end) - moment(start))/(1000 * 3600 * 24);
     let durationMonths = Math.floor(days/30) + Math.floor((days%30+7)/30);
@@ -569,6 +454,7 @@ module.exports = class WorshopManageService extends Service {
     data.extraSallary = Number(data.extraSallary).toFixed(2);
     data.pieceSallary = Number(data.pieceSallary).toFixed(2);
     data.totalSallary = Number(totalSallary).toFixed(2);
+    await redis.set(key, data);
     return data;
   }
 
@@ -578,11 +464,16 @@ module.exports = class WorshopManageService extends Service {
     } else {
       date = moment(new Date(date)).format('YYYY-MM-DD');
     }
+    const redis = this.app.getRedisClient();
+    const key = `${userId}:${DATA_BY_DAY}:${date}`;
+    const cache = await redis.get(key);
+    if (cache) {
+      return cache;
+    }
     const data = await this.app.mysql.get('work_data', {user_id: userId, date});
     const settings = await this.getSetting(userId);
     if (data) {
       if (settings.calc_method === 'by_count') {
-        // const pieceData = await this.app.mysql.select('work_data_piece', {where: {work_data_id: data.id}});
         const sql = 'select wdp.*, wsp.name from work_data_piece as wdp left join work_setting_piece as wsp on wsp.id = wdp.count_setting_id where wdp.work_data_id = ?';        
         const pieceData = await this.app.mysql.query(sql, [data.id]);
         data.piece_info = pieceData;
@@ -591,13 +482,40 @@ module.exports = class WorshopManageService extends Service {
         data.extra_info = extraData;
       }
     }
-    return {
+    const result = {
       date,
       data,
     };
+    await redis.set(key, result);
+    return result;
   }
 
+  async flushMonthlyStatisticsCache(userId, date) {
+    const start = moment(date).startOf('month').format('YYYY-MM-DD');
+    const end = moment(date).endOf('month').format('YYYY-MM-DD');
+    const methods = [constants.METHODS.BY_EXTRA, constants.METHODS.BY_HOUR, constants.METHODS.BY_COUNT];
+    for (let i = 0; i < methods.length; i++) {
+      const method = methods[i];
+      const statisticsKey = `${userId}:${CALC_INFO}:${start}:${end}${method}`;
+      const redis = this.app.getRedisClient();   
+      await redis.del(statisticsKey);
+    }
+  }
 
+  async flushMonthlyWorkData(userId, date) {
+    const start = moment(date).startOf('month').format('YYYY-MM-DD');
+    const end = moment(date).endOf('month').format('YYYY-MM-DD');
+    const key = `${userId}:${DATA_BY_DURATION}:${start}:${end}:monthly`;
+    const redis = this.app.getRedisClient();
+    await redis.del(key);
+  }
+  async flushAllByPrefix(prefix) {
+    const redis = this.app.getRedisClient();
+    const keys = await redis.keys(`${prefix}*`);
+    for (let i = 0; i < keys.length; i++) {
+      await redis.del(keys[i].replace('wechat_api_playgroud:', ''));
+    }
+  }
 }
 
 function safeDigit(num) {
@@ -611,4 +529,10 @@ function usingPiece(settings) {
 
 function usingExtre(settings) {
   return settings && settings.calc_method.includes('with_extra');
+}
+
+function isSingleMonth(start, end) {
+  const s = moment().startOf('month').format('YYYY-MM-DD');
+  const e = moment().endOf('month').format('YYYY-MM-DD');
+  return start === s && end === e;
 }

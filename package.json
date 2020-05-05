@@ -8,9 +8,11 @@
     "cheerio": "^1.0.0-rc.3",
     "egg": "^2.2.1",
     "egg-mysql": "^3.0.0",
+    "egg-redis": "^2.4.0",
     "jsonwebtoken": "^8.3.0",
     "node-taobao-topclient": "^0.1.7",
-    "npm": "^6.13.7"
+    "npm": "^6.13.7",
+    "redis": "^3.0.2"
   },
   "devDependencies": {
     "autod": "^3.0.1",

@@ -64,5 +64,17 @@ module.exports = appInfo => {
     private_key: nconf.get('jwt_private_key'),
   }
 
+  config.redis = {
+    prefix: 'wechat_api_playgroud:',
+    ttl: 120,    
+    client: {
+      port: 6379,
+      host: '127.0.0.1',
+      //redis-cli:  config set requirepass 123456
+      password: nconf.get('redis_password'),
+      db: 5,
+    },
+  }
+
   return config;
 };

@@ -13,7 +13,8 @@ class TKProductsUpdate extends Subscription {
       type: 'worker',
       cron: '0 0 */1 * * 1-6',      
       immediate: true,
-      env: ['prod', 'local']
+      env: ['prod', 'local'],
+      disable: process.env.NODE_ENV === 'development',
     };
   }
 
