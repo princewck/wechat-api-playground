@@ -155,7 +155,7 @@ module.exports = class WorshopManageService extends Service {
       ...(primary_price !== undefined ? { primary_price } : {}),
       ...(absent ? {absent}: {}),
       ...(duty_type ? {duty_type} : {}),
-      ...(comment ? { comment } : {}),
+      comment: comment || '',
     };
     const settings = await this.getSetting(userId);
     if (record && record.id) {
@@ -274,6 +274,7 @@ module.exports = class WorshopManageService extends Service {
     return result;
   }
 
+  // 耗时
   async cacheWorkData(ids) {
     const promises = [];
     const now = moment();
@@ -568,6 +569,7 @@ module.exports = class WorshopManageService extends Service {
     let keys;
     try {
       keys = await redis.keys(`${prefix}*`);
+      console.log('keys', keys);
     } catch (e) {
       keys = [];
     }

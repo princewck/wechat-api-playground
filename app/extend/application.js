@@ -58,7 +58,6 @@ module.exports = {
         });    
       },
       del(key) {
-        const app = this;
         const fullkey = `${prefix}${key}`;
         const client = getClient(app);
         return new Promise((resolve, reject) => {
@@ -72,14 +71,13 @@ module.exports = {
         });
       },
       keys(pattern) {
-        const app = this;
         const client = getClient(app);
         return new Promise((resolve, reject) => {
           client.send_command('scan', [0, 'MATCH', `${prefix}${pattern}`], (error, reply) => {
             if (error) {
               return reject(error);
             }
-            this.logger.info('reply', reply);
+            app.logger.info('reply', reply);
             resolve(reply[1]);
           })
         });              
