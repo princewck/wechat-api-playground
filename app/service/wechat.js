@@ -117,14 +117,14 @@ module.exports = class WechatService extends Service {
 
   // 获取小程序码(新版公式助手)
   async getAcode() {
+    const currentUser = await this.ctx.currentUser();
+    const userId = currentUser.id;
     const config = this.config.wechat.workshop_new;
     const { appid, appsecret } = config;
     const accessToken = await this.ctx.service.wechat.getAccessToken(appid, appsecret);
-    // const currentUser = await this.ctx.currentUser();
     const payload = {
       // access_token: accessToken,
-      // scene: `inviter=${currentUser.id}` ,
-      scene: 'test=1',
+      scene: `inviter_id_${userId}` ,
       page: 'pages/home/index',
       width: 500,
       is_hyaline: true,
@@ -136,6 +136,7 @@ module.exports = class WechatService extends Service {
       },
       data: payload,
     });
+    this.logger.info(`用户id:${userId}，生成了小程序码`);
     return result;
   }
 

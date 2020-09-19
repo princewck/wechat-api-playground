@@ -279,7 +279,7 @@ module.exports = class WechatController extends Controller {
   }
 
 
-  async getAcode() {
+  async getAcode() {   
     try {
       const { data = {} } = await this.ctx.service.wechat.getAcode();
       this.ctx.response.set('Content-Type', 'image/png');
