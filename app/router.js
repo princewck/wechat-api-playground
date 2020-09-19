@@ -71,7 +71,7 @@ module.exports = app => {
     controller.share,
   )
 
-  router.get('/admin/sts', controller.utils.stsToken); // todo add auth
+  router.get('/admin/sts', auth, controller.utils.stsToken); // todo add auth
 
   // wish miniprogram
   router.get('/wish/categories', controller.wishCategories.list);
@@ -106,6 +106,8 @@ module.exports = app => {
   router.get('/checkin/single', auth, controller.wechat.singleCheckinList);
   router.post('/checkin/team', auth, controller.wechat.teamCheckin);
   router.get('/checkin/team', auth, controller.wechat.dailyTeamCheckinList);
+
+  router.get('/wechat/acode', auth, controller.wechat.getAcode);
 
 
   router.get('/work_product/categories', auth, controller.workProduct.listCategories);

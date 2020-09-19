@@ -116,5 +116,29 @@ module.exports = class WechatService extends Service {
     return data[0] && data[0].form_id;
   }
 
+  // 获取小程序码(新版公式助手)
+  async getAcode() {
+    const config = this.config.wechat.workshop_new;
+    const { appid, appsecret } = config;
+    const accessToken = await this.ctx.service.wechat.getAccessToken(appid, appsecret);
+    // const currentUser = await this.ctx.currentUser();
+    const payload = {
+      // access_token: accessToken,
+      // scene: `inviter=${currentUser.id}` ,
+      scene: 'test=1',
+      page: 'pages/home/index',
+      width: 500,
+      is_hyaline: true,
+    };
+    const result = await this.ctx.curl(`https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=${accessToken}`, {
+      method: 'POST',
+      dataType: 'buffer',
+      headers: {
+        'content-type': 'application/json'        
+      },
+      data: payload,
+    });
+    return result;
+  }
 
 }
