@@ -281,15 +281,14 @@ module.exports = class WechatController extends Controller {
 
   async getAcode() {
     try {
-      const data = await this.ctx.service.wechat.getAcode();
-      this.ctx.body = data;
-      // if (data.type === 'Buffer') {
-      //   this.ctx.headers['content-type'] = 'image/png';
-      //   this.ctx.body = Buffer.from(data.data);
-      // } else {
-      //   this.ctx.status = 403;
-      //   this.ctx.body = data;
-      // }
+      const { data = {} } = await this.ctx.service.wechat.getAcode();
+      if (data.type === 'Buffer') {
+        this.ctx.headers['content-type'] = 'image/png';
+        this.ctx.body = Buffer.from(data.data);
+      } else {
+        this.ctx.status = 403;
+        this.ctx.body = data;
+      }
     } catch (e) {
       this.ctx.logger.error(e);
       this.ctx.status = 403;
