@@ -287,13 +287,14 @@ module.exports = class WechatController extends Controller {
         this.ctx.body = Buffer.from(data.data);
       } else {
         this.ctx.status = 403;
-        this.ctx.body = data.data;
+        this.ctx.body = data;
       }
     } catch (e) {
       this.ctx.logger.error(e);
       this.ctx.status = 403;
       this.ctx.body = {
         success: false,
+        data: e,
         message: e.message,
       };      
     }
