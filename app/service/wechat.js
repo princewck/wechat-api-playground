@@ -18,7 +18,6 @@ module.exports = class WechatService extends Service {
       ...res.data,
       expires_at: res.data.expires_in * 1000 + new Date(),
     };
-    console.log(res);
     return res.data.access_token;
   }
 
