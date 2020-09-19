@@ -127,7 +127,7 @@ module.exports = class WechatService extends Service {
       scene: 'test=1',
       page: 'pages/home/index',
       width: 500,
-      is_hyaline: true,
+      is_hyaline: false,
     };
     const result = await this.ctx.curl(`https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=${accessToken}`, {
       method: 'POST',
