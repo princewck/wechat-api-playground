@@ -131,7 +131,6 @@ module.exports = class WechatService extends Service {
     };
     const result = await this.ctx.curl(`https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=${accessToken}`, {
       method: 'POST',
-      dataType: 'buffer',
       headers: {
         'content-type': 'application/json'        
       },

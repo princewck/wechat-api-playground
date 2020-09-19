@@ -283,8 +283,8 @@ module.exports = class WechatController extends Controller {
     try {
       const { data = {} } = await this.ctx.service.wechat.getAcode();
       if (data.type === 'Buffer') {
-        this.ctx.set('Content-Type', 'image/png');
-        this.ctx.body = data;
+        this.ctx.response.set('Content-Type', 'image/png');
+        this.ctx.body = data.data;
       } else {
         this.ctx.status = 403;
         this.ctx.body = data;
