@@ -32,6 +32,7 @@
   },
   "scripts": {
     "start": "EGG_SERVER_ENV=prod egg-scripts start --port 7070 --daemon --title=egg-server-wechat-push",
+    "start:nodaemon": "EGG_SERVER_ENV=prod egg-scripts start --port 7070 --title=egg-server-wechat-push",
     "stop": "egg-scripts stop --title=egg-server-wechat-push",
     "deploy": "EGG_SERVER_ENV=stag egg-scripts start --port 7001 --daemon --title=egg-server-wechat-push-test",
     "stopTest": "egg-scripts stop --title=egg-server-wechat-push-test",
